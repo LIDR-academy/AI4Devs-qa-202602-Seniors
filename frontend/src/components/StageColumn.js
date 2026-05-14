@@ -7,7 +7,12 @@ const StageColumn = ({ stage, index, onCardClick }) => (
     <Col md={3}>
         <Droppable droppableId={`${index}`}>
             {(provided) => (
-                <Card className="mb-4" ref={provided.innerRef} {...provided.droppableProps}>
+                <Card
+                        className="mb-4"
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        data-testid={`stage-column-${stage.title.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
                     <Card.Header className="text-center">{stage.title}</Card.Header>
                     <Card.Body>
                         {stage.candidates.map((candidate, idx) => (
