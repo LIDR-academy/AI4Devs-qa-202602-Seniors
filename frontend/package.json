@@ -48,5 +48,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@playwright/cli": "^0.1.13",
+    "@playwright/test": "^1.60.0"
   }
 }

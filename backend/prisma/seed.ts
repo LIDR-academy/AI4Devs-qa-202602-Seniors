@@ -1,11 +1,54 @@
+/// <reference types="node" />
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function clearSeededData() {
+  await prisma.$transaction(async (tx) => {
+    await tx.interview.deleteMany();
+    await tx.application.deleteMany();
+    await tx.resume.deleteMany();
+    await tx.workExperience.deleteMany();
+    await tx.education.deleteMany();
+    await tx.interviewStep.deleteMany();
+    await tx.position.deleteMany();
+    await tx.employee.deleteMany();
+    await tx.interviewType.deleteMany();
+    await tx.interviewFlow.deleteMany();
+    await tx.candidate.deleteMany();
+    await tx.company.deleteMany();
+  });
+}
+
+async function syncPrimaryKeySequences() {
+  const tables = [
+    'Company',
+    'InterviewFlow',
+    'Position',
+    'Candidate',
+    'Education',
+    'WorkExperience',
+    'Resume',
+    'InterviewType',
+    'InterviewStep',
+    'Employee',
+    'Application',
+    'Interview',
+  ];
+
+  for (const table of tables) {
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('"${table}"', 'id'), COALESCE((SELECT MAX(id) FROM "${table}"), 1), true);`,
+    );
+  }
+}
+
+async function seedFixtures() {
   // Create Companies
   const company1 = await prisma.company.create({
     data: {
+      id: 1,
       name: 'LTI',
     },
   });
@@ -13,12 +56,14 @@ async function main() {
   // Create Interview Flows
   const interviewFlow1 = await prisma.interviewFlow.create({
     data: {
+      id: 1,
       description: 'Standard development interview process',
     },
   });
 
   const interviewFlow2 = await prisma.interviewFlow.create({
     data: {
+      id: 2,
       description: 'Data science interview process',
     },
   });
@@ -26,6 +71,7 @@ async function main() {
   // Create Positions
   const position1 = await prisma.position.create({
     data: {
+      id: 1,
       title: 'Senior Full-Stack Engineer',
       description: 'Develop and maintain software applications.',
       status: 'Open',
@@ -48,6 +94,7 @@ async function main() {
 
   const position2 = await prisma.position.create({
     data: {
+      id: 2,
       title: 'Data Scientist',
       description: 'Analyze and interpret complex data.',
       status: 'Open',
@@ -71,6 +118,7 @@ async function main() {
   // Create Candidates
   const candidate1 = await prisma.candidate.create({
     data: {
+      id: 1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john.doe@gmail.com',
@@ -79,6 +127,7 @@ async function main() {
       educations: {
         create: [
           {
+            id: 1,
             institution: 'University A',
             title: 'BSc Computer Science',
             startDate: new Date('2015-09-01'),
@@ -89,6 +138,7 @@ async function main() {
       workExperiences: {
         create: [
           {
+            id: 1,
             company: 'Eventbrite',
             position: 'Software Developer',
             description: 'Developed web applications',
@@ -100,6 +150,7 @@ async function main() {
       resumes: {
         create: [
           {
+            id: 1,
             filePath: '/resumes/john_doe.pdf',
             fileType: 'application/pdf',
             uploadDate: new Date(),
@@ -111,6 +162,7 @@ async function main() {
 
   const candidate2 = await prisma.candidate.create({
     data: {
+      id: 2,
       firstName: 'Jane',
       lastName: 'Smith',
       email: 'jane.smith@gmail.com',
@@ -119,6 +171,7 @@ async function main() {
       educations: {
         create: [
           {
+            id: 2,
             institution: 'Maryland',
             title: 'MSc Data Science',
             startDate: new Date('2016-09-01'),
@@ -129,6 +182,7 @@ async function main() {
       workExperiences: {
         create: [
           {
+            id: 2,
             company: 'Gitlab',
             position: 'Data Scientist',
             description: 'Analyzed data sets',
@@ -140,6 +194,7 @@ async function main() {
       resumes: {
         create: [
           {
+            id: 2,
             filePath: '/resumes/jane_smith.pdf',
             fileType: 'application/pdf',
             uploadDate: new Date(),
@@ -151,6 +206,7 @@ async function main() {
 
   const candidate3 = await prisma.candidate.create({
     data: {
+      id: 3,
       firstName: 'Carlos',
       lastName: 'García',
       email: 'carlos.garcia@example.com',
@@ -159,6 +215,7 @@ async function main() {
       educations: {
         create: [
           {
+            id: 3,
             institution: 'Instituto Tecnológico',
             title: 'Ingeniería en Sistemas Computacionales',
             startDate: new Date('2017-01-01'),
@@ -169,6 +226,7 @@ async function main() {
       workExperiences: {
         create: [
           {
+            id: 3,
             company: 'Innovaciones Tech',
             position: 'Ingeniero de Software',
             description: 'Desarrollo y mantenimiento de aplicaciones de software',
@@ -180,6 +238,7 @@ async function main() {
       resumes: {
         create: [
           {
+            id: 3,
             filePath: '/resumes/carlos_garcia.pdf',
             fileType: 'application/pdf',
             uploadDate: new Date(),
@@ -192,6 +251,7 @@ async function main() {
   // Create Interview Types
   const interviewType1 = await prisma.interviewType.create({
     data: {
+      id: 1,
       name: 'HR Interview',
       description: 'Assess overall fit, tech stack, salary range and availability',
     },
@@ -199,6 +259,7 @@ async function main() {
 
   const interviewType2 = await prisma.interviewType.create({
     data: {
+      id: 2,
       name: 'Technical Interview',
       description: 'Assess technical skills',
     },
@@ -206,16 +267,18 @@ async function main() {
 
   const interviewType3 = await prisma.interviewType.create({
     data: {
+      id: 3,
       name: 'Hiring manager interview',
       description: 'Assess cultural fit and professional goals',
     },
   });
 
-  
+
 
   // Create Interview Steps
   const interviewStep1 = await prisma.interviewStep.create({
     data: {
+      id: 1,
       interviewFlowId: interviewFlow1.id,
       interviewTypeId: interviewType1.id,
       name: 'Initial Screening',
@@ -225,6 +288,7 @@ async function main() {
 
   const interviewStep2 = await prisma.interviewStep.create({
     data: {
+      id: 2,
       interviewFlowId: interviewFlow1.id,
       interviewTypeId: interviewType2.id,
       name: 'Technical Interview',
@@ -234,6 +298,7 @@ async function main() {
 
   const interviewStep3 = await prisma.interviewStep.create({
     data: {
+      id: 3,
       interviewFlowId: interviewFlow1.id,
       interviewTypeId: interviewType3.id,
       name: 'Manager Interview',
@@ -244,6 +309,7 @@ async function main() {
   // Create Employees
   const employee1 = await prisma.employee.create({
     data: {
+      id: 1,
       companyId: company1.id,
       name: 'Alice Johnson',
       email: 'alice.johnson@lti.com',
@@ -253,6 +319,7 @@ async function main() {
 
   const employee2 = await prisma.employee.create({
     data: {
+      id: 2,
       companyId: company1.id,
       name: 'Bob Miller',
       email: 'bob.miller@lti.com',
@@ -263,6 +330,7 @@ async function main() {
   // Create Applications
   const application1 = await prisma.application.create({
     data: {
+      id: 1,
       positionId: position1.id,
       candidateId: candidate1.id,
       applicationDate: new Date(),
@@ -272,6 +340,7 @@ async function main() {
 
   const application2 = await prisma.application.create({
     data: {
+      id: 2,
       positionId: position2.id,
       candidateId: candidate1.id,
       applicationDate: new Date(),
@@ -281,6 +350,7 @@ async function main() {
 
   const application3 = await prisma.application.create({
     data: {
+      id: 3,
       positionId: position1.id,
       candidateId: candidate2.id,
       applicationDate: new Date(),
@@ -290,6 +360,7 @@ async function main() {
 
   const application4 = await prisma.application.create({
     data: {
+      id: 4,
       positionId: position1.id,
       candidateId: candidate3.id,
       applicationDate: new Date(),
@@ -302,6 +373,7 @@ async function main() {
   await prisma.interview.createMany({
     data: [
       {
+        id: 1,
         applicationId: application1.id,
         interviewStepId: interviewStep1.id,
         employeeId: employee1.id,
@@ -311,6 +383,7 @@ async function main() {
         notes: 'Good technical skills',
       },
       {
+        id: 2,
         applicationId: application2.id,
         interviewStepId: interviewStep1.id,
         employeeId: employee1.id,
@@ -320,6 +393,7 @@ async function main() {
         notes: 'Excellent data analysis skills',
       },
       {
+        id: 3,
         applicationId: application3.id,
         interviewStepId: interviewStep1.id,
         employeeId: employee1.id,
@@ -330,6 +404,15 @@ async function main() {
       }
     ],
   });
+}
+
+async function main() {
+  console.log('Clearing existing seeded data...');
+  await clearSeededData();
+  console.log('Creating fresh seed data...');
+  await seedFixtures();
+  await syncPrimaryKeySequences();
+  console.log('Seed completed successfully.');
 }
 
 main()
