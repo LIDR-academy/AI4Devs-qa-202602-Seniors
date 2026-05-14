@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Row, Offcanvas, Button } from 'react-bootstrap';
+import { Container, Row, Button } from 'react-bootstrap';
 import { DragDropContext } from 'react-beautiful-dnd';
 import StageColumn from './StageColumn';
 import CandidateDetails from './CandidateDetails';
@@ -14,51 +14,41 @@ const PositionsDetails = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchInterviewFlow = async () => {
+        const fetchPositionBoard = async () => {
             try {
-                const response = await fetch(`http://localhost:3010/positions/${id}/interviewFlow`);
-                const data = await response.json();
+                const [flowResponse, candidatesResponse] = await Promise.all([
+                    fetch(`http://localhost:3010/positions/${id}/interviewFlow`),
+                    fetch(`http://localhost:3010/positions/${id}/candidates`)
+                ]);
+
+                const data = await flowResponse.json();
+                const candidates = await candidatesResponse.json();
                 const interviewSteps = data.interviewFlow.interviewFlow.interviewSteps.map(step => ({
                     title: step.name,
                     id: step.id,
-                    candidates: []
+                    candidates: candidates
+                        .filter(candidate => candidate.currentInterviewStep === step.name)
+                        .map(candidate => ({
+                            id: candidate.candidateId.toString(),
+                            name: candidate.fullName,
+                            rating: candidate.averageScore,
+                            applicationId: candidate.applicationId
+                        }))
                 }));
+
                 setStages(interviewSteps);
                 setPositionName(data.interviewFlow.positionName);
             } catch (error) {
-                console.error('Error fetching interview flow:', error);
+                console.error('Error fetching position board:', error);
             }
         };
 
-        const fetchCandidates = async () => {
-            try {
-                const response = await fetch(`http://localhost:3010/positions/${id}/candidates`);
-                const candidates = await response.json();
-                setStages(prevStages =>
-                    prevStages.map(stage => ({
-                        ...stage,
-                        candidates: candidates
-                            .filter(candidate => candidate.currentInterviewStep === stage.title)
-                            .map(candidate => ({
-                                id: candidate.candidateId.toString(),
-                                name: candidate.fullName,
-                                rating: candidate.averageScore,
-                                applicationId: candidate.applicationId
-                            }))
-                    }))
-                );
-            } catch (error) {
-                console.error('Error fetching candidates:', error);
-            }
-        };
-
-        fetchInterviewFlow();
-        fetchCandidates();
+        fetchPositionBoard();
     }, [id]);
 
     const updateCandidateStep = async (candidateId, applicationId, newStep) => {
         try {
-            const response = await fetch(`http://localhost:3010/candidates/${candidateId}`, {
+            const requestOptions = {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -67,7 +57,13 @@ const PositionsDetails = () => {
                     applicationId: Number(applicationId),
                     currentInterviewStep: Number(newStep)
                 })
-            });
+            };
+
+            let response = await fetch(`http://localhost:3010/candidate/${candidateId}`, requestOptions);
+
+            if (!response.ok) {
+                response = await fetch(`http://localhost:3010/candidates/${candidateId}`, requestOptions);
+            }
 
             if (!response.ok) {
                 throw new Error('Error updating candidate step');
@@ -106,13 +102,13 @@ const PositionsDetails = () => {
     };
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-5" data-testid="position-page">
             <Button variant="link" onClick={() => navigate('/positions')} className="mb-3">
                 Volver a Posiciones
             </Button>
-            <h2 className="text-center mb-4">{positionName}</h2>
+            <h2 className="text-center mb-4" data-testid="position-title">{positionName}</h2>
             <DragDropContext onDragEnd={onDragEnd}>
-                <Row>
+                <Row data-testid="position-board">
                     {stages.map((stage, index) => (
                         <StageColumn key={index} stage={stage} index={index} onCardClick={handleCardClick} />
                     ))}
@@ -124,4 +120,3 @@ const PositionsDetails = () => {
 };
 
 export default PositionsDetails;
-
