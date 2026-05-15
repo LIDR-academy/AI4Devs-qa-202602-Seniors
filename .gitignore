@@ -26,3 +26,9 @@ yarn-error.log*
 .vscode
 
 # .env
+
+# Playwright
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/playwright/.cache/
+/frontend/blob-report/
