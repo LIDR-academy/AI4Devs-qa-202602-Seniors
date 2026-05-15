@@ -1,0 +1,7 @@
+- generic [ref=e3]:
+  - button "Volver a Posiciones" [ref=e4] [cursor=pointer]
+  - heading "Senior Full-Stack Engineer" [level=2] [ref=e5]
+  - generic [ref=e6]:
+    - generic [ref=e9]: Initial Screening
+    - generic [ref=e13]: Technical Interview
+    - generic [ref=e17]: Manager Interview

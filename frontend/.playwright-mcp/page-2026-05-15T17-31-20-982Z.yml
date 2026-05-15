@@ -1,0 +1,71 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - button "Volver a Posiciones" [ref=e4] [cursor=pointer]
+    - heading "Senior Full-Stack Engineer" [level=2] [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e9]:
+        - generic [ref=e10]: Initial Screening
+        - generic [ref=e11]:
+          - button "Jane Smith ratingratingratingrating" [ref=e12]:
+            - generic [ref=e13]:
+              - generic [ref=e14]: Jane Smith
+              - generic [ref=e15]:
+                - img "rating" [ref=e16]: 🟢
+                - img "rating" [ref=e17]: 🟢
+                - img "rating" [ref=e18]: 🟢
+                - img "rating" [ref=e19]: 🟢
+          - button "John Doe ratingratingratingratingrating" [ref=e20]:
+            - generic [ref=e21]:
+              - generic [ref=e22]: John Doe
+              - generic [ref=e23]:
+                - img "rating" [ref=e24]: 🟢
+                - img "rating" [ref=e25]: 🟢
+                - img "rating" [ref=e26]: 🟢
+                - img "rating" [ref=e27]: 🟢
+                - img "rating" [ref=e28]: 🟢
+      - generic [ref=e31]: Technical Interview
+      - generic [ref=e34]:
+        - generic [ref=e35]: Manager Interview
+        - button "Carlos García" [ref=e37]:
+          - generic [ref=e39]: Carlos García
+  - dialog [active] [ref=e41]:
+    - generic [ref=e42]:
+      - generic [ref=e43]: Detalles del Candidato
+      - button "Close" [ref=e44] [cursor=pointer]
+    - generic [ref=e45]:
+      - heading "Jane Smith" [level=5] [ref=e46]
+      - paragraph [ref=e47]: "Email: jane.smith@gmail.com"
+      - paragraph [ref=e48]: "Teléfono: 0987654321"
+      - paragraph [ref=e49]: "Dirección: 456 Elm St"
+      - heading "Educación" [level=5] [ref=e50]
+      - generic [ref=e51]:
+        - paragraph [ref=e52]: Maryland - MSc Data Science
+        - paragraph [ref=e53]: 8/31/2016 - 5/31/2020
+      - heading "Experiencias Laborales" [level=5] [ref=e54]
+      - generic [ref=e55]:
+        - paragraph [ref=e56]: Gitlab - Data Scientist
+        - paragraph [ref=e57]: Analyzed data sets
+        - paragraph [ref=e58]: 6/30/2020 - 7/31/2022
+      - heading "Curriculums" [level=5] [ref=e59]
+      - paragraph [ref=e61]:
+        - link "Descargar Curriculum" [ref=e62] [cursor=pointer]:
+          - /url: /resumes/jane_smith.pdf
+      - heading "Solicitudes" [level=5] [ref=e63]
+      - generic [ref=e64]:
+        - paragraph [ref=e65]: "Posición: Senior Full-Stack Engineer"
+        - paragraph [ref=e66]: "Fecha de Solicitud: 5/15/2026"
+        - heading "Entrevistas" [level=5] [ref=e67]
+        - generic [ref=e68]:
+          - paragraph [ref=e69]: "Fecha de la Entrevista: 5/15/2026"
+          - paragraph [ref=e70]: "Etapa: Initial Screening"
+          - paragraph [ref=e71]: "Notas: Good technical skills"
+          - paragraph [ref=e72]: "Puntuación: 4"
+      - heading "Registrar Nueva Entrevista" [level=5] [ref=e73]
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: Notas
+          - textbox "Notas" [ref=e77]
+        - generic [ref=e78]:
+          - generic [ref=e79]: Puntuación
+          - generic [ref=e80]: ★★★★★
+        - button "Registrar" [ref=e81] [cursor=pointer]

@@ -1,0 +1,21 @@
+[     289ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/static/js/bundle.js:82229
+[     381ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:3000/static/js/bundle.js:87826
+[     381ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:3000/static/js/bundle.js:87826
+[     475ms] [ERROR] Warning: %s: Support for defaultProps will be removed from memo components in a future major release. Use JavaScript default parameters instead.%s Connect(Droppable) 
+    at div
+    at http://localhost:3000/static/js/bundle.js:50960:8
+    at StageColumn (http://localhost:3000/static/js/bundle.js:2225:3)
+    at div
+    at http://localhost:3000/static/js/bundle.js:52509:3
+    at Provider (http://localhost:3000/static/js/bundle.js:83047:20)
+    at App (http://localhost:3000/static/js/bundle.js:48414:25)
+    at ErrorBoundary (http://localhost:3000/static/js/bundle.js:42627:35)
+    at DragDropContext (http://localhost:3000/static/js/bundle.js:48538:19)
+    at div
+    at http://localhost:3000/static/js/bundle.js:50996:3
+    at PositionsDetails (http://localhost:3000/static/js/bundle.js:1505:66)
+    at RenderedRoute (http://localhost:3000/static/js/bundle.js:87410:5)
+    at Routes (http://localhost:3000/static/js/bundle.js:88144:5)
+    at Router (http://localhost:3000/static/js/bundle.js:88078:15)
+    at BrowserRouter (http://localhost:3000/static/js/bundle.js:85979:5)
+    at App @ http://localhost:3000/static/js/bundle.js:56542
