@@ -25,4 +25,7 @@ yarn-error.log*
 .idea
 .vscode
 
+# AI
+.lean-ctx/*
+
 # .env
