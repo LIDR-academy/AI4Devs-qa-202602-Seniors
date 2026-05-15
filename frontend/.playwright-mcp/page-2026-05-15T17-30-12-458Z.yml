@@ -1,0 +1,3 @@
+- generic [ref=e3]:
+  - button "Volver a Posiciones" [ref=e4] [cursor=pointer]
+  - heading [level=2]
