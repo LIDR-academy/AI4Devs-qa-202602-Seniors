@@ -6,5 +6,11 @@
     "schema": "backend/prisma/schema.prisma"
   },
   "devDependencies": {
-  }
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.15.0",
+    "playwright-bdd": "^8.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {}
 }

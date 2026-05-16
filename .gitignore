@@ -1,6 +1,6 @@
 # Ignore in all directories
 **/.DS_Store
-#**/.env
+**/.env
 **/.env.example
 **/node_modules
 **/prompts_master.md
@@ -25,4 +25,12 @@ yarn-error.log*
 .idea
 .vscode
 
-# .env
+ .env
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

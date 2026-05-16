@@ -1,0 +1,185 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: positions.feature.spec.js >> Position Board Kanban Management >> Empty interview stages render as drop targets
+- Location: .features-gen/positions.feature.spec.js:38:7
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: locator('text="Offer"')
+Expected: visible
+Timeout: 2000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 2000ms
+  - waiting for locator('text="Offer"')
+
+```
+
+```yaml
+- button "Volver al Dashboard"
+- heading "Posiciones" [level=2]
+- textbox "Buscar por título"
+- textbox:
+  - /placeholder: Buscar por fecha
+- combobox:
+  - option "Estado" [selected]
+  - option "Abierto"
+  - option "Contratado"
+  - option "Cerrado"
+  - option "Borrador"
+- combobox:
+  - option "Manager" [selected]
+  - option "John Doe"
+  - option "Jane Smith"
+  - option "Alex Jones"
+- text: Senior Full-Stack Engineer
+- paragraph:
+  - strong: "Manager:"
+  - text: hr@lti.com
+  - strong: "Deadline:"
+  - text: 31/12/2024
+- text: Open
+- button "Ver proceso"
+- button "Editar"
+- text: Data Scientist
+- paragraph:
+  - strong: "Manager:"
+  - text: hr@lti.com
+  - strong: "Deadline:"
+  - text: 31/12/2024
+- text: Open
+- button "Ver proceso"
+- button "Editar"
+```
+
+# Test source
+
+```ts
+  35  | When('I move the candidate from {string} to {string}', async ({ page }, fromStage: string, toStage: string) => {
+  36  |   const putRequestPromise = page.waitForResponse(response => 
+  37  |     response.request().method() === 'PUT' && response.url().includes('/candidates/')
+  38  |   );
+  39  | 
+  40  |   const candidateCard = page.locator('[class*="candidate"], .candidate-card').first();
+  41  |   const targetColumn = page.locator(`text="${toStage}"`).locator('..').first();
+  42  |   
+  43  |   await candidateCard.dragTo(targetColumn);
+  44  |   
+  45  |   const response = await putRequestPromise;
+  46  |   lastRequestStatus = response.status();
+  47  |   lastRequestBody = await response.request().postDataJSON().catch(() => null);
+  48  | });
+  49  | 
+  50  | Then('the candidate appears in the {string} column', async ({ page }, stage: string) => {
+  51  |   const stageColumn = page.locator(`text="${stage}"`).locator('..').first();
+  52  |   const candidateInStage = stageColumn.locator('[class*="candidate"]').first();
+  53  |   await expect(candidateInStage).toBeVisible({ timeout: 2000 });
+  54  | });
+  55  | 
+  56  | Then('a PUT request was made to update the candidate stage', async () => {
+  57  |   expect(lastRequestStatus).toBeDefined();
+  58  |   expect([200, 201]).toContain(lastRequestStatus);
+  59  | });
+  60  | 
+  61  | Then('the request body contains the correct applicationId and currentInterviewStep', async () => {
+  62  |   expect(lastRequestBody).toBeDefined();
+  63  |   expect(lastRequestBody).toHaveProperty('applicationId');
+  64  |   expect(lastRequestBody).toHaveProperty('currentInterviewStep');
+  65  |   expect(typeof lastRequestBody.applicationId).toBe('number');
+  66  |   expect(typeof lastRequestBody.currentInterviewStep).toBe('number');
+  67  | });
+  68  | 
+  69  | Then('the backend responds with a 2xx status', async () => {
+  70  |   expect(lastRequestStatus).toBeGreaterThanOrEqual(200);
+  71  |   expect(lastRequestStatus).toBeLessThan(300);
+  72  | });
+  73  | 
+  74  | When('I attempt to move a candidate to a new stage', async ({ page }) => {
+  75  |   await page.route('**/api/candidates/*', async route => {
+  76  |     if (route.request().method() === 'PUT') {
+  77  |       await route.abort('failed');
+  78  |       lastRequestStatus = 500;
+  79  |     } else {
+  80  |       await route.continue();
+  81  |     }
+  82  |   });
+  83  | 
+  84  |   const candidateCard = page.locator('[class*="candidate"]').first();
+  85  |   const targetColumn = page.locator('[class*="stage"], [class*="column"]').nth(1);
+  86  |   
+  87  |   await candidateCard.dragTo(targetColumn).catch(() => null);
+  88  |   await page.waitForTimeout(500);
+  89  | });
+  90  | 
+  91  | When('the backend returns a 500 error', async () => {
+  92  |   expect(lastRequestStatus).toBe(500);
+  93  | });
+  94  | 
+  95  | Then('the candidate remains in their original stage', async ({ page }) => {
+  96  |   const firstColumn = page.locator('[class*="stage"], [class*="column"]').first();
+  97  |   const candidate = firstColumn.locator('[class*="candidate"]').first();
+  98  |   await expect(candidate).toBeVisible();
+  99  | });
+  100 | 
+  101 | Then('an error message is displayed to the user', async ({ page }) => {
+  102 |   const errorMsg = page.locator('[class*="error"], [role="alert"]').first();
+  103 |   await expect(errorMsg).toBeVisible({ timeout: 2000 });
+  104 | });
+  105 | 
+  106 | When('I reorder a candidate within the same {string} stage', async ({ page }, stage: string) => {
+  107 |   putRequestFired = false;
+  108 |   
+  109 |   page.on('request', request => {
+  110 |     if (request.method() === 'PUT' && request.url().includes('/candidates/')) {
+  111 |       putRequestFired = true;
+  112 |     }
+  113 |   });
+  114 | 
+  115 |   const stageColumn = page.locator(`text="${stage}"`).locator('..').first();
+  116 |   const candidates = await stageColumn.locator('[class*="candidate"]').all();
+  117 |   
+  118 |   if (candidates.length >= 2) {
+  119 |     await candidates[0].dragTo(candidates[1]).catch(() => null);
+  120 |     await page.waitForTimeout(300);
+  121 |   }
+  122 | });
+  123 | 
+  124 | Then('no PUT request is made to the backend', async () => {
+  125 |   expect(putRequestFired).toBe(false);
+  126 | });
+  127 | 
+  128 | Then('the candidate\'s position in the column is updated', async ({ page }) => {
+  129 |   const candidates = await page.locator('[class*="candidate"]').all();
+  130 |   expect(candidates.length).toBeGreaterThanOrEqual(2);
+  131 | });
+  132 | 
+  133 | Then('I see the {string} stage column is displayed', async ({ page }, stage: string) => {
+  134 |   const stageHeader = page.locator(`text="${stage}"`);
+> 135 |   await expect(stageHeader).toBeVisible({ timeout: 2000 });
+      |                             ^ Error: expect(locator).toBeVisible() failed
+  136 | });
+  137 | 
+  138 | Then('the {string} column has no candidates', async ({ page }, stage: string) => {
+  139 |   const stageColumn = page.locator(`text="${stage}"`).locator('..').first();
+  140 |   const candidates = await stageColumn.locator('[class*="candidate"]').all();
+  141 |   expect(candidates.length).toBe(0);
+  142 | });
+  143 | 
+  144 | Then('the {string} column is a valid drop target for drag-and-drop', async ({ page }, stage: string) => {
+  145 |   const stageColumn = page.locator(`text="${stage}"`).locator('..').first();
+  146 |   await expect(stageColumn).toBeVisible();
+  147 |   const boundingBox = await stageColumn.boundingBox();
+  148 |   expect(boundingBox).not.toBeNull();
+  149 | });
+  150 | 
+```
