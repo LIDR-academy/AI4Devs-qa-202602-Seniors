@@ -89,7 +89,7 @@ npx playwright install
 Si el proyecto aún no tiene archivo de configuración, genera uno base con:
 
 ```bash
-npx playwright init
+npm init playwright@latest
 ```
 
 Esto creará `playwright.config.ts` (o `.js`) en la raíz de `/frontend`.
