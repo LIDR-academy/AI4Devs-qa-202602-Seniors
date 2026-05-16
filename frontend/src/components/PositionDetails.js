@@ -16,7 +16,7 @@ const PositionsDetails = () => {
     useEffect(() => {
         const fetchInterviewFlow = async () => {
             try {
-                const response = await fetch(`http://localhost:3010/positions/${id}/interviewFlow`);
+                const response = await fetch(`http://localhost:3010/positions/${id}/interviewflow`);
                 const data = await response.json();
                 const interviewSteps = data.interviewFlow.interviewFlow.interviewSteps.map(step => ({
                     title: step.name,
@@ -110,13 +110,15 @@ const PositionsDetails = () => {
             <Button variant="link" onClick={() => navigate('/positions')} className="mb-3">
                 Volver a Posiciones
             </Button>
-            <h2 className="text-center mb-4">{positionName}</h2>
+            <h2 className="text-center mb-4" data-testid="position-title">{positionName}</h2>
             <DragDropContext onDragEnd={onDragEnd}>
+                <div data-testid="kanban-board">
                 <Row>
                     {stages.map((stage, index) => (
                         <StageColumn key={index} stage={stage} index={index} onCardClick={handleCardClick} />
                     ))}
                 </Row>
+                </div>
             </DragDropContext>
             <CandidateDetails candidate={selectedCandidate} onClose={closeSlide} />
         </Container>
