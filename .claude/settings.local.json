@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose ps *)",
+      "Bash(curl -s http://localhost:3010/positions/1/candidates)",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s http://localhost:3010/positions/1/interviewFlow)",
+      "Bash(curl -s -X PUT http://localhost:3010/candidates/3 -H 'Content-Type: application/json' -d '{\"applicationId\": 4, \"currentInterviewStep\": 1}')",
+      "Bash(npx playwright *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3010/positions/1/candidates)"
+    ]
+  }
+}
