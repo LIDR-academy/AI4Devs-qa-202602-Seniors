@@ -1,0 +1,157 @@
+# UI Snapshot — Position Page
+# Captured by /ui-discovery — 2026-05-16
+# URL: http://localhost:3000/positions/1
+# Position: Senior Full-Stack Engineer (ID 1)
+
+page_url: "http://localhost:3000/positions/1"
+position_id: 1
+position_name: "Senior Full-Stack Engineer"
+
+# ──────────────────────────────────────────
+# DOM observations
+# ──────────────────────────────────────────
+
+position_title:
+  tag: h2
+  text: "Senior Full-Stack Engineer"
+  aria_role: heading  # implicit from H2 element
+
+phase_columns:
+  # react-beautiful-dnd Droppable renders as <div class="mb-4 card" data-rbd-droppable-id="<index>">
+  # No explicit role or aria-label on the column container.
+  # Column header is <div class="card-header text-center"> with the stage title text.
+  # Column identity: data-rbd-droppable-id = stringified stage index (0, 1, 2)
+  observed:
+    - droppable_id: "0"
+      header_text: "Initial Screening"
+      candidate_count: 1
+    - droppable_id: "1"
+      header_text: "Technical Interview"
+      candidate_count: 2
+    - droppable_id: "2"
+      header_text: "Manager Interview"
+      candidate_count: 0
+
+candidate_cards:
+  # react-beautiful-dnd Draggable renders as <div class="mb-2 card" role="button" data-rbd-draggable-id="<candidateId>">
+  # Entire card is drag handle (draggableProps + dragHandleProps on same element)
+  # role="button" is set by react-beautiful-dnd on the drag handle element
+  observed:
+    - draggable_id: "3"
+      candidate_name: "Carlos García"
+      current_column: "Initial Screening"
+      role: button
+    - draggable_id: "2"
+      candidate_name: "Jane Smith"
+      current_column: "Technical Interview"
+      role: button
+    - draggable_id: "1"
+      candidate_name: "John Doe"
+      current_column: "Technical Interview"
+      role: button
+
+drag_handle:
+  # Entire card element IS the drag handle (no separate handle element)
+  # dragHandleProps and draggableProps both applied to the <Card> root
+  separate_handle: false
+
+# ──────────────────────────────────────────
+# derived_selectors
+# Role-based Playwright locators for step definitions
+# ──────────────────────────────────────────
+
+derived_selectors:
+  position_title:
+    description: "The position name heading at the top of the page"
+    playwright: "page.getByRole('heading', { name: 'Senior Full-Stack Engineer' })"
+    note: "H2 has implicit heading role; name must match exact DB value"
+
+  phase_column_by_name:
+    description: "A phase column identified by its stage title"
+    playwright: "page.locator('[data-rbd-droppable-id]').filter({ hasText: '<column-name>' })"
+    examples:
+      - "page.locator('[data-rbd-droppable-id]').filter({ hasText: 'Initial Screening' })"
+      - "page.locator('[data-rbd-droppable-id]').filter({ hasText: 'Technical Interview' })"
+      - "page.locator('[data-rbd-droppable-id]').filter({ hasText: 'Manager Interview' })"
+    note: >
+      Columns have no aria-label or explicit role. The droppable container
+      (data-rbd-droppable-id) filtered by header text is the most robust selector.
+      In step definitions, wrapping this in a helper function keeps Gherkin domain-clean.
+
+  candidate_card_by_name:
+    description: "A candidate card identified by the candidate's full name"
+    playwright: "page.getByRole('button', { name: '<candidate-name>' })"
+    examples:
+      - "page.getByRole('button', { name: 'John Doe' })"
+      - "page.getByRole('button', { name: 'Jane Smith' })"
+      - "page.getByRole('button', { name: 'Carlos García' })"
+    note: >
+      react-beautiful-dnd adds role="button" to each draggable card element.
+      The accessible name is derived from the Card.Title text content.
+      Use exact: false or a regex if the name matching is tricky with ratings emoji.
+
+  candidate_card_within_column:
+    description: "A specific candidate card within a named phase column"
+    playwright: >
+      page.locator('[data-rbd-droppable-id]')
+        .filter({ hasText: '<column-name>' })
+        .getByRole('button', { name: '<candidate-name>' })
+    example: >
+      page.locator('[data-rbd-droppable-id]')
+        .filter({ hasText: 'Technical Interview' })
+        .getByRole('button', { name: 'John Doe' })
+
+  all_phase_columns:
+    description: "All droppable column containers"
+    playwright: "page.locator('[data-rbd-droppable-id]')"
+
+  all_candidate_cards:
+    description: "All draggable candidate cards on the board"
+    playwright: "page.locator('[data-rbd-draggable-id]')"
+
+# ──────────────────────────────────────────
+# Drag-and-drop implementation notes
+# ──────────────────────────────────────────
+
+dnd_notes:
+  library: react-beautiful-dnd v13.1.1
+  simulation_approach: >
+    react-beautiful-dnd v13 uses pointer events internally. The recommended
+    Playwright approach is a mouse-event sequence:
+      1. hover over the source card (page.hover)
+      2. mouse.down()
+      3. mouse.move() to a midpoint of the destination column (multiple steps)
+      4. mouse.up()
+    Alternatively, page.dragAndDrop(source, target) may work in Chromium
+    with --force-device-scale-factor=1. Verify during test execution.
+  api_intercept:
+    method: PUT
+    url_pattern: "http://localhost:3010/candidates/:candidateId"
+    body_shape:
+      applicationId: number
+      currentInterviewStep: number  # stage.id (not index)
+    trigger: onDragEnd fires updateCandidateStep after state update
+
+# ──────────────────────────────────────────
+# Test data confirmed from live DB
+# ──────────────────────────────────────────
+
+test_data:
+  position_id: 1
+  stage_titles:
+    - "Initial Screening"    # step id=1
+    - "Technical Interview"  # step id=2
+    - "Manager Interview"    # step id=3
+  candidates:
+    - id: 1
+      name: "John Doe"
+      application_id: 1
+      current_step: "Technical Interview"
+    - id: 2
+      name: "Jane Smith"
+      application_id: 3
+      current_step: "Technical Interview"
+    - id: 3
+      name: "Carlos García"
+      application_id: 4
+      current_step: "Initial Screening"
