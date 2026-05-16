@@ -42,10 +42,14 @@ cleanup() {
   echo ""
   echo "=== Teardown ==="
   if [[ -n "$BACKEND_PID" ]]; then
-    kill "$BACKEND_PID" 2>/dev/null && echo "Backend stopped (PID $BACKEND_PID)." || true
+    kill -TERM -"${BACKEND_PID}" 2>/dev/null || true
+    kill -KILL -"${BACKEND_PID}" 2>/dev/null || true
+    echo "Backend stopped (PID $BACKEND_PID)."
   fi
   if [[ -n "$FRONTEND_PID" ]]; then
-    kill "$FRONTEND_PID" 2>/dev/null && echo "Frontend stopped (PID $FRONTEND_PID)." || true
+    kill -TERM -"${FRONTEND_PID}" 2>/dev/null || true
+    kill -KILL -"${FRONTEND_PID}" 2>/dev/null || true
+    echo "Frontend stopped (PID $FRONTEND_PID)."
   fi
   cd "$BACKEND_DIR" && npx tsx scripts/teardown-e2e.ts 2>/dev/null || true
   cd "$ROOT_DIR"
@@ -112,7 +116,7 @@ cd "$BACKEND_DIR" && npx tsx scripts/seed-e2e.ts
 echo ""
 echo "=== [3/5] Starting backend ==="
 cd "$BACKEND_DIR"
-./node_modules/.bin/ts-node-dev --respawn --transpile-only src/index.ts \
+setsid ./node_modules/.bin/ts-node-dev --respawn --transpile-only src/index.ts \
   > /tmp/lti-backend-e2e.log 2>&1 &
 BACKEND_PID=$!
 echo "Backend started (PID $BACKEND_PID). Logs: /tmp/lti-backend-e2e.log"
@@ -124,7 +128,7 @@ wait_for_http "http://localhost:3010/positions" "Backend" 60
 echo ""
 echo "=== [4/5] Starting frontend ==="
 cd "$FRONTEND_DIR"
-BROWSER=none ./node_modules/.bin/react-scripts start \
+setsid env BROWSER=none ./node_modules/.bin/react-scripts start \
   > /tmp/lti-frontend-e2e.log 2>&1 &
 FRONTEND_PID=$!
 echo "Frontend started (PID $FRONTEND_PID). Logs: /tmp/lti-frontend-e2e.log"

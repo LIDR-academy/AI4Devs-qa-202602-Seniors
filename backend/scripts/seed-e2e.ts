@@ -3,10 +3,14 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main(): Promise<void> {
-  const existing = await prisma.company.findFirst({ where: { name: { startsWith: 'E2E ' } } });
-  if (existing) {
-    console.log('E2E seed data already present — skipping.');
-    return;
+  const existing = await prisma.company.findMany({ where: { name: { startsWith: 'E2E ' } } });
+  if (existing.length > 0) {
+    const list = existing.map((c) => `  id=${c.id} name="${c.name}"`).join('\n');
+    throw new Error(
+      `E2E seed aborted: stale/partial E2E company records already exist in the database.\n` +
+      `Run the teardown script (prisma migrate reset or a dedicated cleanup) before re-seeding.\n` +
+      `Found records:\n${list}`,
+    );
   }
 
   const company = await prisma.company.create({ data: { name: 'E2E LTI' } });
@@ -60,7 +64,7 @@ async function main(): Promise<void> {
     },
   });
 
-  await prisma.position.create({
+  const position = await prisma.position.create({
     data: {
       companyId: company.id,
       interviewFlowId: flow.id,
@@ -101,10 +105,6 @@ async function main(): Promise<void> {
       phone: '600000003',
       address: 'E2E Address 3',
     },
-  });
-
-  const position = await prisma.position.findFirstOrThrow({
-    where: { title: { startsWith: 'E2E ' } },
   });
 
   await prisma.application.create({

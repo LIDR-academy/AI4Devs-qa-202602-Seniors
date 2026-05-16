@@ -42,7 +42,7 @@ async function main(): Promise<void> {
   const stepIds = e2eSteps.map((s) => s.id);
 
   const e2eApplications = await prisma.application.findMany({
-    where: { candidateId: { in: candidateIds } },
+    where: { OR: [{ candidateId: { in: candidateIds } }, { positionId: { in: positionIds } }] },
     select: { id: true },
   });
   const applicationIds = e2eApplications.map((a) => a.id);
@@ -59,7 +59,9 @@ async function main(): Promise<void> {
   });
 
   // 2. Applications (depends on Position, Candidate, InterviewStep)
-  await prisma.application.deleteMany({ where: { candidateId: { in: candidateIds } } });
+  await prisma.application.deleteMany({
+    where: { OR: [{ candidateId: { in: candidateIds } }, { positionId: { in: positionIds } }] },
+  });
 
   // 3. InterviewSteps (depends on InterviewFlow, InterviewType)
   await prisma.interviewStep.deleteMany({ where: { interviewFlowId: { in: flowIds } } });

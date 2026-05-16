@@ -52,7 +52,7 @@ export const test = base.extend<{
 
   resetCandidates: [
     async ({ request }, use) => {
-      await Promise.all(
+      const responses = await Promise.all(
         Object.entries(INITIAL_STAGE).map(([name, stage]) =>
           request.put(`${BACKEND}/candidates/${CANDIDATE_IDS[name]}`, {
             data: {
@@ -62,6 +62,15 @@ export const test = base.extend<{
           }),
         ),
       );
+
+      const failed = responses.filter((r) => !r.ok());
+      if (failed.length > 0) {
+        const details = await Promise.all(
+          failed.map(async (r) => `  ${r.url()} → HTTP ${r.status()}: ${await r.text()}`),
+        );
+        throw new Error(`resetCandidates: ${failed.length} PUT(s) failed:\n${details.join('\n')}`);
+      }
+
       await use();
     },
     { auto: true },
