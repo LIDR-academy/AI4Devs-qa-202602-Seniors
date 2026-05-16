@@ -21,7 +21,7 @@ const StageColumn = ({ stage, index, onCardClick }) => (
                     data-testid={`phase-column-${toPhaseSlug(stage.title)}`}
                 >
                     <Card.Header className="text-center">{stage.title}</Card.Header>
-                    <Card.Body>
+                    <Card.Body data-testid={`phase-column-${toPhaseSlug(stage.title)}-body`}>
                         {stage.candidates.map((candidate, idx) => (
                             <CandidateCard key={candidate.id} candidate={candidate} index={idx} onClick={onCardClick} />
                         ))}
