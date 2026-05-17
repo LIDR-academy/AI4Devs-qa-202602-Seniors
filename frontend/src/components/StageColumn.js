@@ -3,11 +3,18 @@ import { Col, Card } from 'react-bootstrap';
 import { Droppable } from 'react-beautiful-dnd';
 import CandidateCard from './CandidateCard';
 
+const toTestIdSlug = (title) => title.toLowerCase().replace(/\s+/g, '-');
+
 const StageColumn = ({ stage, index, onCardClick }) => (
     <Col md={3}>
         <Droppable droppableId={`${index}`}>
             {(provided) => (
-                <Card className="mb-4" ref={provided.innerRef} {...provided.droppableProps}>
+                <Card
+                    className="mb-4"
+                    data-testid={`phase-column-${toTestIdSlug(stage.title)}`}
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                >
                     <Card.Header className="text-center">{stage.title}</Card.Header>
                     <Card.Body>
                         {stage.candidates.map((candidate, idx) => (
