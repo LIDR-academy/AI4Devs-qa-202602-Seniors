@@ -1,0 +1,11 @@
+{
+  "firstName": "Test",
+  "lastName": "Candidate",
+  "email": "test.candidate@example.com",
+  "phone": "+34 600 000 000",
+  "address": "Calle Falsa 123",
+  "educations": [],
+  "workExperiences": [],
+  "resumes": [],
+  "applications": []
+}

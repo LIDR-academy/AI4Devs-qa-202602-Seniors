@@ -1,0 +1,17 @@
+{
+  "interviewFlow": {
+    "positionName": "Senior Backend Engineer",
+    "interviewFlow": {
+      "id": 1,
+      "description": "Standard hiring pipeline",
+      "interviewSteps": [
+        { "id": 1, "name": "Applied", "orderIndex": 1 },
+        { "id": 2, "name": "Interview", "orderIndex": 2 },
+        { "id": 3, "name": "Technical Test", "orderIndex": 3 },
+        { "id": 4, "name": "Offer", "orderIndex": 4 },
+        { "id": 5, "name": "Hired", "orderIndex": 5 },
+        { "id": 6, "name": "Rejected", "orderIndex": 6 }
+      ]
+    }
+  }
+}

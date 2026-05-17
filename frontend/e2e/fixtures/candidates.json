@@ -1,0 +1,7 @@
+[
+  { "candidateId": 101, "fullName": "Ana Garcia",     "currentInterviewStep": "Applied",        "averageScore": 4, "applicationId": 1001 },
+  { "candidateId": 102, "fullName": "Bruno Lopez",    "currentInterviewStep": "Applied",        "averageScore": 3, "applicationId": 1002 },
+  { "candidateId": 103, "fullName": "Carla Mendez",   "currentInterviewStep": "Interview",      "averageScore": 5, "applicationId": 1003 },
+  { "candidateId": 104, "fullName": "Diego Ruiz",     "currentInterviewStep": "Technical Test", "averageScore": 4, "applicationId": 1004 },
+  { "candidateId": 105, "fullName": "Elena Perez",    "currentInterviewStep": "Offer",          "averageScore": 5, "applicationId": 1005 }
+]
