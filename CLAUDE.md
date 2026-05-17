@@ -207,7 +207,7 @@ test.describe('<Domain Name>', () => {
 After implementing all tests, run the full suite:
 
 ```bash
-npx playwright test
+pnpm dlx playwright test
 ```
 
 For each failure:
