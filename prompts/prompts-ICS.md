@@ -1198,3 +1198,10 @@ Generate under @.cursor/ a README file to explain how to use the created agents 
 #### Model: Composer 2
 
 @.cursor/agents/e2e-orchestrator.md run the full position-interface E2E workflow for Scenario 1 (Position Page Load)
+
+---
+## Prompt - 2026-05-17T22:20:00Z
+### Agent: e2e-orchestrator
+#### Model: Composer 2
+
+@.cursor/agents/e2e-orchestrator.md run the full position-interface E2E workflow for Scenario 2 (Candidate Phase Change)
