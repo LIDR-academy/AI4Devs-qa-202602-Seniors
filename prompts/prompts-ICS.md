@@ -1191,3 +1191,10 @@ Before completing this task, verify that:
 #### Model: Claude 4.7 Opus
 
 Generate under @.cursor/ a README file to explain how to use the created agents and skills taking into account the given scenarios for e2e tests.
+
+---
+## Prompt - 2026-05-17T21:50:00Z
+### Agent: e2e-orchestrator
+#### Model: Composer 2
+
+@.cursor/agents/e2e-orchestrator.md run the full position-interface E2E workflow for Scenario 1 (Position Page Load)
