@@ -1234,14 +1234,6 @@ Verify each finding against current code. Fix only still-valid issues, skip the 
 In `@frontend/tests/e2e/candidate-phase-change.spec.ts` around lines 76 - 88, The test currently uses unstable Bootstrap class selectors in variables engineeringCard, initialColumn, technicalColumn, and carlosCard; replace those with stable selectors (prefer data-testid attributes on the job card, column containers and candidate cards or accessible role/name queries) so locators use page.getByTestId('...') or page.getByRole(..., { name: '...' }) instead of '.card', '.card-header', '.card.mb-2'; update the corresponding selector usages in the drag-and-drop assertions and actions and make the same change for the similar locators around lines 113-114 to ensure tests target data-testid/role+name selectors.
 
 ---
-## Prompt - 2026-05-17T22:24:00Z
-### Agent: Agent
-#### Model: Composer 2
-
-There were issues while running some tools. Please review the errors and either fix the tool's configuration or disable the tool if it's a critical failure.
-ESLint skipped: no ESLint configuration detected in root package.json. To enable, add eslint to devDependencies.
-
----
 ## Prompt - 2026-05-17T22:25:00Z
 ### Agent: Agent
 #### Model: Composer 2
@@ -1269,19 +1261,55 @@ Verify each finding against current code. Fix only still-valid issues, skip the 
 In `@frontend/tests/e2e/position-page-load.spec.ts` around lines 50 - 55, The test currently hardcodes phaseTitles and only verifies three phases; replace that with iterating over the already-fetched steps array so all phases are validated. Locate the block referencing phaseTitles, steps, step and board-column, remove the hardcoded phaseTitles/for loop, and instead loop over each element in steps (ensuring steps is defined/truthy) and for each step assert it exists and that page.getByTestId(\`board-column-${step.id}\`) is visible.
 
 ---
-## Prompt - 2026-05-17T22:28:00Z
+## Prompt - 2026-05-17T22:29:00Z
 ### Agent: Agent
 #### Model: Composer 2
 
-Oops! Something went wrong! :(
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
 
-ESLint: 9.39.4
+In `@frontend/package.json` around lines 53 - 57, The frontend package.json
+devDependencies currently pin "eslint": "^8.57.0" while the monorepo root runs
+ESLint 9, causing the incompatible "eslint-config-react-app" error; update the
+frontend devDependencies to align with the root by bumping "eslint" to the root
+version (e.g., "eslint": "^9.22.0") and then verify "eslint-config-react-app"
+(or replace it) is a version compatible with ESLint 9—if no compatible release
+exists, replace the config with a supported React ESLint config or downgrade the
+root ESLint instead so both "eslint" and "eslint-config-react-app" versions are
+compatible; after changing devDependencies, reinstall workspace packages to
+ensure the correct ESLint version is used.
 
-ESLint couldn't find the config "react-app" to extend from. Please check that the name of the config is correct.
+---
+## Prompt - 2026-05-17T22:30:00Z
+### Agent: Agent
+#### Model: Composer 2
 
-The config "react-app" was referenced from the config file in "/frontend/package.json".
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
 
-If you still have problems, please stop by https://eslint.org/chat/help to chat with the team.
+In `@prompts/prompts-ICS.md` around lines 1237 - 1243, The prompt-tracking entry
+titled "Prompt - 2026-05-17T22:24:00Z" is recording automated tool output
+("There were issues while running some tools... ESLint skipped...") instead of a
+user-initiated prompt; remove that entry or replace its content with the
+original user prompt (if one exists) so only user prompts are stored, and update
+prompts/prompts-ICS.md accordingly; ensure the change follows the
+prompt-tracking rule in .cursor/rules/10-prompt-tracking.mdc and delete any
+lines containing the ESLint skipped message or other tool diagnostics so tool
+error output is not logged as a user prompt.
 
-(node:2) ESLintRCWarning: You are using an eslintrc configuration file, which is deprecated and support will be removed in v10.0.0. Please migrate to an eslint.config.js file. See https://eslint.org/docs/latest/use/configure/migration-guide for details. An eslintrc configuration file is used because you have the ESLINT_USE_FLAT_CONFIG environment variable set to false. If you want to use an eslint.config.js file, remove the environment variable. If you want to find the location of the eslintrc configuration file, use the --debug flag.
-(Use node --trace-warnings ... to show where the warning was created)
+---
+## Prompt - 2026-05-17T22:31:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the
+rest with a brief reason, keep changes minimal, and validate.
+
+In `@prompts/prompts-ICS.md` around lines 1272 - 1287, The prompt entry titled
+"Prompt - 2026-05-17T22:28:00Z" currently contains ESLint execution error output
+(the "Oops! Something went wrong!" block) which should not be recorded as a user
+prompt; remove that error block or replace it with the actual user prompt that
+led to the ESLint run, and ensure the entry adheres to the prompt-tracking rules
+in .cursor/rules/10-prompt-tracking.mdc; look for the header "## Prompt -
+2026-05-17T22:28:00Z" and the following ESLint text to locate and fix the
+offending content.
