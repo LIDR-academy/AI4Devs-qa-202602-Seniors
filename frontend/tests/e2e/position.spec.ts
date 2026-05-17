@@ -281,20 +281,35 @@ test.describe('Candidate Phase Change', () => {
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
 
-    // Intercept and verify the response
-    await page.route(`**/api/candidate/${candidateId}`, async (route) => {
-      await route.continue();
-    });
-
     const candidateCard = page.locator(
       `[data-testid="candidate-${candidateId}"]`
     );
     const targetColumn = phases[1].locator;
 
+    // Set up listeners for request and response before drag
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.method() === 'PUT' && request.url().includes(candidateId)
+    );
+
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(candidateId) && response.request().method() === 'PUT'
+    );
+
     // Drag and drop
     await candidateCard.dragTo(targetColumn);
 
-    // Verify card remains in new column
+    // Await and verify the network request
+    const request = await requestPromise;
+    expect(request.method()).toBe('PUT');
+
+    // Await and verify the network response
+    const response = await responsePromise;
+    expect(response.status()).toBeGreaterThanOrEqual(200);
+    expect(response.status()).toBeLessThan(300);
+
+    // Verify card remains in new column (UI state)
     await expect(
       targetColumn.locator(`[data-testid="candidate-${candidateId}"]`)
     ).toBeVisible();
