@@ -111,3 +111,34 @@ the same DOM/test helper used for the simulated drop so the asserted value
 matches the intended drop target.
 
 **What solves?**: A veracity check can succeed even when the wrong phase is sent. According to the coding guidelines: "\*\*/position.spec.ts: The candidate phase change test should intercept and validate the PUT request /candidate/:id... by checking... the content of the request body."
+
+14. Verify each finding against current code. Fix only still-valid issues, skip the
+    rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/helpers.ts` around lines 74 - 76,
+positionData.interviewFlow is being accessed with an extra nested interviewFlow
+which can throw; update the interviewSteps extraction to safely handle multiple
+shapes (e.g. positionData.interviewFlow?.interviewSteps,
+positionData.interviewFlow?.data?.interviewSteps, or
+positionData.interviewFlow?.interviewFlow?.interviewSteps) using optional
+chaining and a safe default (empty array) before running find; then derive
+stepForPhase and interviewStepId from that safe interviewSteps array so the
+fallback logic (stepForPhase?.id || interviewSteps[0]?.id || 1) never runs on
+undefined.
+
+**What solves?**: Interview-step extraction is over-nested and can crash setup.
+
+15. Verify each finding against current code. Fix only still-valid issues, skip the
+    rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position.spec.ts` around lines 55 - 63, The test "All
+hiring phase columns are rendered" currently only asserts phases.length > 0;
+update it to assert the full set of rendered phase column headings equals the
+expected hiring phases by: using discoverPhaseColumns(page) to collect rendered
+phase names, importing the canonical phases array/enum (e.g., HIRING_PHASES or
+similar constant) from the app code instead of hardcoding strings, and comparing
+the two sets (order-insensitive) so the test fails if any phase is
+missing/renamed; keep references to discoverPhaseColumns and the test name to
+locate and update the assertion.
+
+**What solves?**: Fixes a test that passes if only one phase column exists (> 0), so it won't detect missing or renamed phases. The complete rendered set needs to be validated against the planned contracting phases.

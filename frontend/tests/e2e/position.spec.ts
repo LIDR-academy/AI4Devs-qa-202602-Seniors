@@ -2,6 +2,16 @@ import { test, expect, Page } from '@playwright/test';
 import { TestDataManager } from './helpers';
 import { TestCleanup } from './cleanup';
 
+// Canonical hiring phases that should be rendered in the position page
+const EXPECTED_HIRING_PHASES = new Set([
+  'Aplicado',
+  'Entrevista',
+  'Prueba Técnica',
+  'Oferta',
+  'Contratado',
+  'Rechazado',
+]);
+
 async function discoverPhaseColumns(page: Page, positionId?: string): Promise<{ name: string; locator: ReturnType<Page['locator']>; stepId?: number }[]> {
   // Wait for at least one phase column to be visible
   await page.waitForSelector('[data-testid^="phase-column-"]:not([data-testid*="-header"])', { timeout: 5000 });
@@ -99,8 +109,17 @@ test.describe('Position Page', () => {
 
   test('All hiring phase columns are rendered', async ({ page }) => {
     const phases = await discoverPhaseColumns(page, positionId);
+
+    // Assert that all expected hiring phases are rendered
     expect(phases.length).toBeGreaterThan(0);
 
+    // Collect rendered phase names
+    const renderedPhases = new Set(phases.map(p => p.name));
+
+    // Assert all expected phases are rendered (order-insensitive)
+    expect(renderedPhases).toEqual(EXPECTED_HIRING_PHASES);
+
+    // Assert each phase is visible
     for (const phase of phases) {
       await expect(phase.locator).toBeVisible();
     }
