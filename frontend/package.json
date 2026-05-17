@@ -30,6 +30,7 @@
     "build": "react-scripts build",
     "test": "jest --config jest.config.js",
     "test:e2e": "playwright test",
+    "mcp:playwright": "playwright-mcp",
     "allure:generate": "allure generate ./allure-results -o ./allure-report --clean",
     "allure:open": "allure open ./allure-report",
     "eject": "react-scripts eject"
@@ -53,6 +54,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/mcp": "^0.0.75",
     "@playwright/test": "^1.60.0",
     "allure-commandline": "^2.41.0",
     "allure-playwright": "^3.8.0",
