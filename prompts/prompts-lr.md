@@ -95,3 +95,19 @@ after supplying artifacts), ensuring the lines that currently reference `state:
 11. The backend isn't working as it should. Could we fix the issues?
 
 12. I have 30 end-to-end tests that are failing. Could we investigate what's not working and fix them?
+
+13. Verify each finding against current code. Fix only still-valid issues, skip the
+    rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position.spec.ts` around lines 270 - 273, The test
+currently only checks that postData.phase is truthy; replace that with a strict
+equality assertion to the drop target's expected phase value: capture the
+expected phase identifier used when performing the drag/drop (e.g., the variable
+representing the drop target phase such as targetPhase or expectedPhase), then
+replace expect(postData.phase).toBeTruthy() with
+expect(postData.phase).toBe(targetPhase) after reading the request via
+putPromise and request.postDataJSON(); ensure the test derives targetPhase from
+the same DOM/test helper used for the simulated drop so the asserted value
+matches the intended drop target.
+
+**What solves?**: A veracity check can succeed even when the wrong phase is sent. According to the coding guidelines: "\*\*/position.spec.ts: The candidate phase change test should intercept and validate the PUT request /candidate/:id... by checking... the content of the request body."

@@ -2,13 +2,30 @@ import { test, expect, Page } from '@playwright/test';
 import { TestDataManager } from './helpers';
 import { TestCleanup } from './cleanup';
 
-async function discoverPhaseColumns(page: Page): Promise<{ name: string; locator: ReturnType<Page['locator']> }[]> {
+async function discoverPhaseColumns(page: Page, positionId?: string): Promise<{ name: string; locator: ReturnType<Page['locator']>; stepId?: number }[]> {
   // Wait for at least one phase column to be visible
   await page.waitForSelector('[data-testid^="phase-column-"]:not([data-testid*="-header"])', { timeout: 5000 });
 
   const columnHeaders = page.locator('[data-testid^="phase-column-"]:not([data-testid*="-header"])');
   const count = await columnHeaders.count();
   const phases = [];
+
+  // Fetch interview flow if positionId provided to map phase names to step IDs
+  let stepIdMap: { [name: string]: number } = {};
+  if (positionId) {
+    try {
+      const response = await page.request.get(`http://localhost:3010/positions/${positionId}/interviewflow`);
+      if (response.ok()) {
+        const data = await response.json();
+        const steps = data.interviewFlow.interviewFlow.interviewSteps;
+        steps.forEach((step: any) => {
+          stepIdMap[step.name] = step.id;
+        });
+      }
+    } catch (e) {
+      // If we can't fetch the flow, just continue without step IDs
+    }
+  }
 
   for (let i = 0; i < count; i++) {
     const column = columnHeaders.nth(i);
@@ -20,6 +37,7 @@ async function discoverPhaseColumns(page: Page): Promise<{ name: string; locator
       phases.push({
         name: phaseText,
         locator: page.locator(`[data-testid="${testId}"]`),
+        stepId: stepIdMap[phaseText],
       });
     }
   }
@@ -80,7 +98,7 @@ test.describe('Position Page', () => {
   });
 
   test('All hiring phase columns are rendered', async ({ page }) => {
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
     expect(phases.length).toBeGreaterThan(0);
 
     for (const phase of phases) {
@@ -146,7 +164,7 @@ test.describe('Position Page', () => {
   });
 
   test('Empty columns are displayed gracefully', async ({ page }) => {
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
     expect(phases.length).toBeGreaterThan(0);
 
     // All columns should be visible even if empty
@@ -203,7 +221,7 @@ test.describe('Candidate Phase Change', () => {
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
     const candidateId = candidates[0].candidateId;
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
 
@@ -242,7 +260,7 @@ test.describe('Candidate Phase Change', () => {
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
     const candidateId = candidates[0].candidateId;
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
 
@@ -268,7 +286,7 @@ test.describe('Candidate Phase Change', () => {
   test('PUT request URL contains correct candidate ID', async ({ page }) => {
     const candidates = await dataManager.getCandidates(positionId);
     const candidateId = candidates[0].candidateId;
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
 
@@ -294,7 +312,7 @@ test.describe('Candidate Phase Change', () => {
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
     const candidateId = candidates[0].candidateId;
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
 
@@ -308,12 +326,13 @@ test.describe('Candidate Phase Change', () => {
       `[data-testid="candidate-${candidateId}"]`
     );
     const targetColumn = phases[1].locator;
+    const targetPhaseId = phases[1].stepId;
 
     await dragCandidateCard(page, candidateCard, targetColumn);
 
     const request = await putPromise;
     const postData = request.postDataJSON();
-    expect(postData.currentInterviewStep).toBeTruthy();
+    expect(postData.currentInterviewStep).toBe(targetPhaseId);
   });
 
   test('Successful backend response (2xx) keeps card in new column', async ({
@@ -321,7 +340,7 @@ test.describe('Candidate Phase Change', () => {
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
     const candidateId = candidates[0].candidateId;
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
 
@@ -367,7 +386,7 @@ test.describe('Candidate Phase Change', () => {
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
     const candidateId = candidates[0].candidateId;
-    const phases = await discoverPhaseColumns(page);
+    const phases = await discoverPhaseColumns(page, positionId);
 
     expect(phases.length).toBeGreaterThanOrEqual(3);
 

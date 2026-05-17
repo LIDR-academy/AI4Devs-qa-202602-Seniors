@@ -20,7 +20,7 @@ Your definition of "done" is determined entirely by the tasks defined in the REA
 
 Before doing anything else, execute this checklist in order. Do not skip steps.
 
-```
+```text
 [ ] 1. Read README.md completely
 [ ] 2. Identify: tech stack, folder structure, running instructions
 [ ] 3. Identify: where tests should be located (use README as source of truth)
