@@ -77,7 +77,7 @@ const Positions: React.FC = () => {
             <Row>
                 {positions.map((position, index) => (
                     <Col md={4} key={index} className="mb-4">
-                        <Card className="shadow-sm">
+                        <Card className="shadow-sm" data-testid={`position-list-card-${position.id}`}>
                             <Card.Body>
                                 <Card.Title>{position.title}</Card.Title>
                                 <Card.Text>

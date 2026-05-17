@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Row, Offcanvas, Button } from 'react-bootstrap';
+import { Container, Row, Button } from 'react-bootstrap';
 import { DragDropContext } from 'react-beautiful-dnd';
 import StageColumn from './StageColumn';
 import CandidateDetails from './CandidateDetails';
@@ -16,7 +16,7 @@ const PositionsDetails = () => {
     useEffect(() => {
         const fetchInterviewFlow = async () => {
             try {
-                const response = await fetch(`http://localhost:3010/positions/${id}/interviewFlow`);
+                const response = await fetch(`http://localhost:3010/positions/${id}/interviewflow`);
                 const data = await response.json();
                 const interviewSteps = data.interviewFlow.interviewFlow.interviewSteps.map(step => ({
                     title: step.name,
