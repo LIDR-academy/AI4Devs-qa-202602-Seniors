@@ -45,13 +45,14 @@ test.describe('Position page load', () => {
     await expect(engineeringCard).toBeVisible();
     await engineeringCard.getByRole('button', { name: 'Ver proceso' }).click();
 
+    await expect(page).toHaveURL(`${base}/positions/${engineering!.id}`);
     await expect(page.getByRole('heading', { name: 'Senior Full-Stack Engineer' })).toBeVisible();
 
-    const phaseTitles = ['Initial Screening', 'Technical Interview', 'Manager Interview'] as const;
-    for (const title of phaseTitles) {
-      const step = steps.find((s) => s.name === title);
-      expect(step, `interview step: ${title}`).toBeTruthy();
-      await expect(page.getByTestId(`board-column-${step!.id}`)).toBeVisible();
+    expect(Array.isArray(steps) && steps!.length > 0, 'interview steps from API').toBeTruthy();
+
+    for (const step of steps!) {
+      expect(step?.id ?? null).not.toBeNull();
+      await expect(page.getByTestId(`board-column-${step.id}`)).toBeVisible();
     }
 
     const technicalStep = steps.find((s) => s.name === 'Technical Interview');

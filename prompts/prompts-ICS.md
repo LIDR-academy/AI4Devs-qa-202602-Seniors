@@ -1249,3 +1249,39 @@ ESLint skipped: no ESLint configuration detected in root package.json. To enable
 Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
 
 In `@frontend/tests/e2e/position-page-load.spec.ts` around lines 20 - 40, The tests use brittle Bootstrap classes ('.card' / '.card-header'); update engineeringCard, technicalColumn, initialColumn and the phaseTitles checks to use stable selectors (data-testid or accessible role/name) instead: replace the engineeringCard locator with a data-testid-based locator (e.g. page.getByTestId or locator('[data-testid="position-card-<slug>"]) for the "Senior Full-Stack Engineer" card, change the phase header checks in the phaseTitles loop to use data-testid or getByRole('heading',{name: title}) instead of '.card-header', and update technicalColumn and initialColumn to locate columns by data-testid (e.g. '[data-testid="phase-column-Technical Interview"]') then assert candidate names within those containers; ensure names of tests/attributes match the app's data-testid attributes.
+
+---
+## Prompt - 2026-05-17T22:26:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position-page-load.spec.ts` around lines 46 - 49, The test clicks engineeringCard.getByRole('button', { name: 'Ver proceso' }) and asserts the heading but doesn't verify the route change; update the test to also assert the URL path equals or matches /positions/:id after the click (use page.url() or expect(page).toHaveURL(...) depending on your test helpers), locate the assertion near the existing page.getByRole('heading', { name: 'Senior Full-Stack Engineer' }) check, and ensure it accounts for dynamic id segments (e.g., match /\/positions\/\d+/ or the app's id pattern) so the E2E verifies navigation to /positions/:id as required by the Position interface tests.
+
+---
+## Prompt - 2026-05-17T22:27:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position-page-load.spec.ts` around lines 50 - 55, The test currently hardcodes phaseTitles and only verifies three phases; replace that with iterating over the already-fetched steps array so all phases are validated. Locate the block referencing phaseTitles, steps, step and board-column, remove the hardcoded phaseTitles/for loop, and instead loop over each element in steps (ensuring steps is defined/truthy) and for each step assert it exists and that page.getByTestId(\`board-column-${step.id}\`) is visible.
+
+---
+## Prompt - 2026-05-17T22:28:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Oops! Something went wrong! :(
+
+ESLint: 9.39.4
+
+ESLint couldn't find the config "react-app" to extend from. Please check that the name of the config is correct.
+
+The config "react-app" was referenced from the config file in "/frontend/package.json".
+
+If you still have problems, please stop by https://eslint.org/chat/help to chat with the team.
+
+(node:2) ESLintRCWarning: You are using an eslintrc configuration file, which is deprecated and support will be removed in v10.0.0. Please migrate to an eslint.config.js file. See https://eslint.org/docs/latest/use/configure/migration-guide for details. An eslintrc configuration file is used because you have the ESLINT_USE_FLAT_CONFIG environment variable set to false. If you want to use an eslint.config.js file, remove the environment variable. If you want to find the location of the eslintrc configuration file, use the --debug flag.
+(Use node --trace-warnings ... to show where the warning was created)
