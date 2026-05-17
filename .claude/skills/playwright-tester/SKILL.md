@@ -54,7 +54,7 @@ Write `.spec.ts` files organized by test strategy. Each file should be focused a
 
 **File organization:**
 
-```
+```text
 tests/
   e2e/
     happy-path.spec.ts      — core user journeys that must always work
