@@ -71,7 +71,12 @@ export class TestDataManager {
       throw new Error(`Failed to get interview flow: ${positionResponse.status()}`);
     }
     const positionData = await positionResponse.json();
-    const interviewSteps = positionData.interviewFlow.interviewFlow.interviewSteps;
+    // Safely extract interviewSteps, handling multiple possible API response shapes
+    const interviewSteps =
+      positionData.interviewFlow?.interviewSteps ||
+      positionData.interviewFlow?.data?.interviewSteps ||
+      positionData.interviewFlow?.interviewFlow?.interviewSteps ||
+      [];
     const stepForPhase = interviewSteps.find((step: any) => step.name === phase);
     const interviewStepId = stepForPhase?.id || interviewSteps[0]?.id || 1;
 
