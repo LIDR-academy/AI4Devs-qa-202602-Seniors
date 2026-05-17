@@ -78,3 +78,16 @@ between 200 and 299, then keep the existing visual assertion that the card is
 visible in targetColumn.
 
 **What solves?**: The test only validated the visual state; it did not verify that the server response was 2xx. Now, in the candidate phase change test, both the visual state (card in a new column) and the network state (successful PUT request) are verified.
+
+10. Verify each finding against current code. Fix only still-valid issues, skip the
+    rest with a brief reason, keep changes minimal, and validate.
+
+In @.claude/commands/opsx/apply.md around lines 44 - 45, The docs mention a
+non-existent `/opsx:continue` command for the `state: "blocked"` case; update
+the blocked-state messaging in .claude/commands/opsx/apply.md to remove
+`/opsx:continue` and instead instruct users to update the missing artifacts or
+use an existing command such as `/opsx:propose` (or manually run `/opsx:apply`
+after supplying artifacts), ensuring the lines that currently reference `state:
+"blocked"` and the suggested action are replaced with the corrected guidance.
+
+**What solves?**: The available opsx commands are: apply, archive, explore, and proposal. There is no continue.md file in .claude/commands/opsx/. It suggest an alternative action for the blocked state (for example, update missing artifacts or use /opsx:propose).
