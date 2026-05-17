@@ -56,24 +56,30 @@ async function discoverPhaseColumns(page: Page, positionId?: string): Promise<{ 
 }
 
 async function dragCandidateCard(page: Page, fromLocator: ReturnType<Page['locator']>, toLocator: ReturnType<Page['locator']>) {
+  // Ensure source element is visible and scrolled into view before dragging
+  await fromLocator.waitFor({ state: 'visible' });
+  await fromLocator.scrollIntoViewIfNeeded();
+
   const fromBox = await fromLocator.boundingBox();
   const toBox = await toLocator.boundingBox();
   if (fromBox && toBox) {
     // Move to start position
     await page.mouse.move(fromBox.x + fromBox.width / 2, fromBox.y + fromBox.height / 2);
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(10); // Minimal delay for mouse movement registration
 
     // Begin drag
     await page.mouse.down();
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(10); // Minimal delay for mouse down registration
 
     // Perform drag movement with many steps for smooth motion
+    // Ensure destination is visible before moving to it
+    await toLocator.waitFor({ state: 'visible' });
     await page.mouse.move(toBox.x + toBox.width / 2, toBox.y + toBox.height / 2, { steps: 20 });
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(10); // Minimal delay for drag completion
 
     // End drag
     await page.mouse.up();
-    await page.waitForTimeout(50);
+    await page.waitForTimeout(10); // Minimal delay for mouse up registration
   } else {
     await fromLocator.dragTo(toLocator);
   }
