@@ -83,3 +83,22 @@ export const updateCandidateStage = async (id: number, applicationIdNumber: numb
         throw new Error(error);
     }
 };
+
+export const getAllCandidates = async (): Promise<Candidate[]> => {
+    try {
+        const candidates = await Candidate.findAll();
+        return candidates;
+    } catch (error) {
+        console.error('Error retrieving all candidates:', error);
+        throw new Error('Error retrieving all candidates');
+    }
+};
+
+export const deleteCandidate = async (id: number): Promise<void> => {
+    try {
+        await Candidate.delete(id);
+    } catch (error) {
+        console.error('Error deleting candidate:', error);
+        throw new Error('Error deleting candidate');
+    }
+};

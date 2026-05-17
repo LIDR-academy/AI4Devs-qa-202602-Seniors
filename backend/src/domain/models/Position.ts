@@ -98,4 +98,10 @@ export class Position {
         if (!data) return null;
         return new Position(data)
     }
+
+    static async delete(id: number): Promise<void> {
+        await prisma.position.delete({
+            where: { id: id }
+        });
+    }
 }

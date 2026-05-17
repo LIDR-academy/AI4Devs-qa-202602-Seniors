@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { addCandidate, findCandidateById, updateCandidateStage } from '../../application/services/candidateService';
+import { addCandidate, findCandidateById, updateCandidateStage, getAllCandidates, deleteCandidate } from '../../application/services/candidateService';
 
 export const addCandidateController = async (req: Request, res: Response) => {
     try {
@@ -57,4 +57,35 @@ export const updateCandidateStageController = async (req: Request, res: Response
         }
     }
 };
+
+export const getAllCandidatesController = async (req: Request, res: Response) => {
+    try {
+        const candidates = await getAllCandidates();
+        res.status(200).json(candidates);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            res.status(500).json({ message: 'Error retrieving candidates', error: error.message });
+        } else {
+            res.status(500).json({ message: 'Error retrieving candidates', error: 'Unknown error' });
+        }
+    }
+};
+
+export const deleteCandidateController = async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'Invalid ID format' });
+        }
+        await deleteCandidate(id);
+        res.status(200).json({ message: 'Candidate deleted successfully' });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            res.status(500).json({ message: 'Error deleting candidate', error: error.message });
+        } else {
+            res.status(500).json({ message: 'Error deleting candidate', error: 'Unknown error' });
+        }
+    }
+};
+
 export { addCandidate };

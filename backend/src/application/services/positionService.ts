@@ -76,3 +76,77 @@ export const getAllPositionsService = async () => {
         throw new Error('Error retrieving all positions');
     }
 };
+
+export const createPositionService = async (positionData: any) => {
+    try {
+        // Ensure InterviewType exists first (use upsert to avoid race conditions)
+        const interviewType = await prisma.interviewType.upsert({
+            where: { id: 1 },
+            update: {},
+            create: {
+                id: 1,
+                name: 'Technical Interview'
+            }
+        }).catch(() =>
+            prisma.interviewType.findFirst() ||
+            prisma.interviewType.create({ data: { name: 'Technical Interview' } })
+        );
+
+        // Ensure company exists (use upsert to avoid race conditions)
+        const company = await prisma.company.upsert({
+            where: { id: 1 },
+            update: {},
+            create: {
+                id: 1,
+                name: 'Default Company'
+            }
+        }).catch(() =>
+            prisma.company.findFirst() ||
+            prisma.company.create({ data: { name: 'Default Company' } })
+        );
+
+        // Ensure interview flow exists (use upsert to avoid race conditions)
+        const interviewFlow = await prisma.interviewFlow.upsert({
+            where: { id: 1 },
+            update: {},
+            create: {
+                id: 1,
+                description: 'Default Interview Flow',
+                interviewSteps: {
+                    create: [
+                        { name: 'Aplicado', interviewTypeId: 1, orderIndex: 1 },
+                        { name: 'Entrevista', interviewTypeId: 1, orderIndex: 2 },
+                        { name: 'Prueba Técnica', interviewTypeId: 1, orderIndex: 3 },
+                        { name: 'Oferta', interviewTypeId: 1, orderIndex: 4 },
+                        { name: 'Contratado', interviewTypeId: 1, orderIndex: 5 },
+                        { name: 'Rechazado', interviewTypeId: 1, orderIndex: 6 },
+                    ]
+                }
+            }
+        }).catch(() =>
+            prisma.interviewFlow.findFirst() ||
+            prisma.interviewFlow.create({ data: { description: 'Default Interview Flow' } })
+        );
+
+        const positionWithDefaults = {
+            ...positionData,
+            companyId: positionData.companyId || company.id,
+            interviewFlowId: positionData.interviewFlowId || interviewFlow.id,
+        };
+
+        const position = new Position(positionWithDefaults);
+        return await position.save();
+    } catch (error) {
+        console.error('Error creating position:', error);
+        throw new Error(`Error creating position: ${error instanceof Error ? error.message : String(error)}`);
+    }
+};
+
+export const deletePositionService = async (id: number) => {
+    try {
+        await Position.delete(id);
+    } catch (error) {
+        console.error('Error deleting position:', error);
+        throw new Error('Error deleting position');
+    }
+};

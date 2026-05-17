@@ -160,4 +160,22 @@ export class Candidate {
         if (!data) return null;
         return new Candidate(data);
     }
+
+    static async findAll(): Promise<Candidate[]> {
+        const data = await prisma.candidate.findMany({
+            include: {
+                educations: true,
+                workExperiences: true,
+                resumes: true,
+                applications: true
+            }
+        });
+        return data.map(candidateData => new Candidate(candidateData));
+    }
+
+    static async delete(id: number): Promise<void> {
+        await prisma.candidate.delete({
+            where: { id: id }
+        });
+    }
 }

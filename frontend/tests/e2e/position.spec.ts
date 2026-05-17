@@ -3,15 +3,18 @@ import { TestDataManager } from './helpers';
 import { TestCleanup } from './cleanup';
 
 async function discoverPhaseColumns(page: Page): Promise<{ name: string; locator: ReturnType<Page['locator']> }[]> {
-  const columnHeaders = page.locator('[data-testid^="phase-column-"]');
+  // Wait for at least one phase column to be visible
+  await page.waitForSelector('[data-testid^="phase-column-"]:not([data-testid*="-header"])', { timeout: 5000 });
+
+  const columnHeaders = page.locator('[data-testid^="phase-column-"]:not([data-testid*="-header"])');
   const count = await columnHeaders.count();
   const phases = [];
 
   for (let i = 0; i < count; i++) {
-    const header = columnHeaders.nth(i);
-    const testId = await header.getAttribute('data-testid');
-    const text = await header.textContent();
-    const phaseText = text?.trim() || '';
+    const column = columnHeaders.nth(i);
+    const testId = await column.getAttribute('data-testid');
+    const headerText = await column.locator('[data-testid$="-header"]').textContent();
+    const phaseText = headerText?.trim() || '';
 
     if (testId && phaseText) {
       phases.push({
@@ -22,6 +25,30 @@ async function discoverPhaseColumns(page: Page): Promise<{ name: string; locator
   }
 
   return phases;
+}
+
+async function dragCandidateCard(page: Page, fromLocator: ReturnType<Page['locator']>, toLocator: ReturnType<Page['locator']>) {
+  const fromBox = await fromLocator.boundingBox();
+  const toBox = await toLocator.boundingBox();
+  if (fromBox && toBox) {
+    // Move to start position
+    await page.mouse.move(fromBox.x + fromBox.width / 2, fromBox.y + fromBox.height / 2);
+    await page.waitForTimeout(50);
+
+    // Begin drag
+    await page.mouse.down();
+    await page.waitForTimeout(50);
+
+    // Perform drag movement with many steps for smooth motion
+    await page.mouse.move(toBox.x + toBox.width / 2, toBox.y + toBox.height / 2, { steps: 20 });
+    await page.waitForTimeout(50);
+
+    // End drag
+    await page.mouse.up();
+    await page.waitForTimeout(50);
+  } else {
+    await fromLocator.dragTo(toLocator);
+  }
 }
 
 test.describe('Position Page', () => {
@@ -39,7 +66,7 @@ test.describe('Position Page', () => {
     cleanup.trackPosition(positionId);
 
     // Navigate to position page
-    await page.goto(`/position/${positionId}`);
+    await page.goto(`/positions/${positionId}`);
   });
 
   test.afterEach(async () => {
@@ -58,7 +85,6 @@ test.describe('Position Page', () => {
 
     for (const phase of phases) {
       await expect(phase.locator).toBeVisible();
-      await expect(page.locator(`[data-testid^="phase-column-"]`).filter({ hasText: phase.name })).toBeVisible();
     }
   });
 
@@ -92,6 +118,9 @@ test.describe('Position Page', () => {
 
     // Reload to see the candidates
     await page.reload();
+
+    // Wait for candidates to load after reload
+    await page.waitForSelector('[data-testid^="candidate-"]', { timeout: 5000 });
 
     // Verify candidates are in correct columns
     const aplicadoColumn = page.locator(
@@ -159,7 +188,10 @@ test.describe('Candidate Phase Change', () => {
     cleanup.trackCandidate(candidate.id);
 
     // Navigate to position page
-    await page.goto(`/position/${positionId}`);
+    await page.goto(`/positions/${positionId}`);
+
+    // Wait for candidates to load
+    await page.waitForSelector('[data-testid^="candidate-"]', { timeout: 5000 });
   });
 
   test.afterEach(async () => {
@@ -170,7 +202,7 @@ test.describe('Candidate Phase Change', () => {
     page,
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
-    const candidateId = candidates[0].id;
+    const candidateId = candidates[0].candidateId;
     const phases = await discoverPhaseColumns(page);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
@@ -184,8 +216,20 @@ test.describe('Candidate Phase Change', () => {
     // Get target column (second phase)
     const targetColumn = phases[1].locator;
 
-    // Drag and drop
-    await candidateCard.dragTo(targetColumn);
+    // Wait for the response from the update request
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes(candidateId) && response.request().method() === 'PUT'
+    );
+
+    // Drag and drop using mouse events for react-beautiful-dnd compatibility
+    await dragCandidateCard(page, candidateCard, targetColumn);
+
+    // Wait for the update request to complete
+    await responsePromise;
+
+    // Wait a bit for the DOM to update
+    await page.waitForTimeout(200);
 
     // Verify card moved to new column
     await expect(
@@ -197,7 +241,7 @@ test.describe('Candidate Phase Change', () => {
     page,
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
-    const candidateId = candidates[0].id;
+    const candidateId = candidates[0].candidateId;
     const phases = await discoverPhaseColumns(page);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
@@ -214,7 +258,7 @@ test.describe('Candidate Phase Change', () => {
     const targetColumn = phases[1].locator;
 
     // Drag and drop
-    await candidateCard.dragTo(targetColumn);
+    await dragCandidateCard(page, candidateCard, targetColumn);
 
     // Verify PUT request was made
     const request = await putPromise;
@@ -223,7 +267,7 @@ test.describe('Candidate Phase Change', () => {
 
   test('PUT request URL contains correct candidate ID', async ({ page }) => {
     const candidates = await dataManager.getCandidates(positionId);
-    const candidateId = candidates[0].id;
+    const candidateId = candidates[0].candidateId;
     const phases = await discoverPhaseColumns(page);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
@@ -239,17 +283,17 @@ test.describe('Candidate Phase Change', () => {
     );
     const targetColumn = phases[1].locator;
 
-    await candidateCard.dragTo(targetColumn);
+    await dragCandidateCard(page, candidateCard, targetColumn);
 
     const request = await putPromise;
-    expect(request.url()).toContain(`/candidate/${candidateId}`);
+    expect(request.url()).toContain(`/candidates/${candidateId}`);
   });
 
   test('PUT request body contains the new phase identifier', async ({
     page,
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
-    const candidateId = candidates[0].id;
+    const candidateId = candidates[0].candidateId;
     const phases = await discoverPhaseColumns(page);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
@@ -265,18 +309,18 @@ test.describe('Candidate Phase Change', () => {
     );
     const targetColumn = phases[1].locator;
 
-    await candidateCard.dragTo(targetColumn);
+    await dragCandidateCard(page, candidateCard, targetColumn);
 
     const request = await putPromise;
     const postData = request.postDataJSON();
-    expect(postData.phase).toBeTruthy();
+    expect(postData.currentInterviewStep).toBeTruthy();
   });
 
   test('Successful backend response (2xx) keeps card in new column', async ({
     page,
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
-    const candidateId = candidates[0].id;
+    const candidateId = candidates[0].candidateId;
     const phases = await discoverPhaseColumns(page);
 
     expect(phases.length).toBeGreaterThanOrEqual(2);
@@ -298,7 +342,7 @@ test.describe('Candidate Phase Change', () => {
     );
 
     // Drag and drop
-    await candidateCard.dragTo(targetColumn);
+    await dragCandidateCard(page, candidateCard, targetColumn);
 
     // Await and verify the network request
     const request = await requestPromise;
@@ -308,6 +352,9 @@ test.describe('Candidate Phase Change', () => {
     const response = await responsePromise;
     expect(response.status()).toBeGreaterThanOrEqual(200);
     expect(response.status()).toBeLessThan(300);
+
+    // Wait a bit for the DOM to update
+    await page.waitForTimeout(200);
 
     // Verify card remains in new column (UI state)
     await expect(
@@ -319,7 +366,7 @@ test.describe('Candidate Phase Change', () => {
     page,
   }) => {
     const candidates = await dataManager.getCandidates(positionId);
-    const candidateId = candidates[0].id;
+    const candidateId = candidates[0].candidateId;
     const phases = await discoverPhaseColumns(page);
 
     expect(phases.length).toBeGreaterThanOrEqual(3);
@@ -337,7 +384,10 @@ test.describe('Candidate Phase Change', () => {
       const targetColumn = phases[i].locator;
       const card = page.locator(`[data-testid="candidate-${candidateId}"]`);
 
-      await card.dragTo(targetColumn);
+      await dragCandidateCard(page, card, targetColumn);
+
+      // Wait a bit for the DOM to update
+      await page.waitForTimeout(100);
 
       await expect(
         targetColumn.locator(`[data-testid="candidate-${candidateId}"]`)

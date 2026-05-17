@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Draggable } from 'react-beautiful-dnd';
 
-const CandidateCard = ({ candidate, index, onClick }) => (
+const CandidateCard = ({ candidate, index, onClick, testId }) => (
     <Draggable key={candidate.id} draggableId={candidate.id} index={index}>
         {(provided) => (
             <Card
@@ -11,6 +11,7 @@ const CandidateCard = ({ candidate, index, onClick }) => (
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
                 onClick={() => onClick(candidate)}
+                data-testid={testId}
             >
                 <Card.Body>
                     <Card.Title>{candidate.name}</Card.Title>
