@@ -45,3 +45,36 @@ A: Based on tasks defined in the README
      - Support for all three browsers in parallel mode
      - Dynamic test data creation (no hardcoded IDs)
      - Proper test isolation with beforeEach/afterEach hooks
+
+8. Verify each finding against current code. Fix only still-valid issues, skip the
+   rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position.spec.ts` around lines 5 - 12, The test currently
+hardcodes PHASES and uses those labels to locate phase columns; replace the
+PHASES constant and any index-based lookups by discovering phase headings from
+the rendered DOM at runtime (e.g., query for the phase column headings rendered
+by the component and map their textContent to columns), then use those
+discovered headings to locate column containers and candidate cards (update any
+references to PHASES and index-based access in position.spec.ts, including the
+blocks around the PHASES constant and lines noted: ~42-49, ~108-113, ~302-303).
+Ensure tests use DOM queries (getAllByRole/getAllByText/getAllByTestId or
+within(column).querySelectorAll) to find headings and then assert card placement
+relative to the discovered column elements instead of hardcoded labels.
+
+**What solves?**: The phase assumptions where hardcoded, it derives phase columns from rendered DOM instead.
+
+9. Verify each finding against current code. Fix only still-valid issues, skip the
+   rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position.spec.ts` around lines 252 - 275, The test
+"Successful backend response (2xx) keeps card in new column" only checks UI;
+update it to also assert the network request/response for the candidate phase
+change: after computing candidateId (from dataManager.getCandidates) set up
+listeners (use page.waitForRequest and page.waitForResponse for
+`**/api/candidate/${candidateId}` or capture them in the page.route handler) so
+that after performing candidateCard.dragTo(targetColumn) you await the request
+and response, assert the request.method is 'PUT' and assert response.status() is
+between 200 and 299, then keep the existing visual assertion that the card is
+visible in targetColumn.
+
+**What solves?**: The test only validated the visual state; it did not verify that the server response was 2xx. Now, in the candidate phase change test, both the visual state (card in a new column) and the network state (successful PUT request) are verified.
