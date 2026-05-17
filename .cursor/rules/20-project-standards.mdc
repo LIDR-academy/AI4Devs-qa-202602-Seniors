@@ -1,0 +1,198 @@
+---
+description: Frontend project standards for architecture, documentation, and testing
+globs:
+  - "frontend/**/*"
+  - "tests/**/*"
+  - "tests/e2e/**/*"
+alwaysApply: false
+---
+
+# Frontend Project Standards
+
+This rule extracts and formalizes conventions already present in this repository (plus minimal defaults only where something is missing). It aligns with `.cursor/rules/10-prompt-tracking.mdc` (prompt logging) and `.cursor/agents/qa-developer.md` (QA expectations, CodeRabbit doc coverage, `docs/QA-Report.md`).
+
+## 1. Project Overview
+
+- **Purpose:** LTI Talent Tracking System — recruiter UI for candidates and job positions, including a Kanban-style hiring board per position.
+- **Stack (inferred from `frontend/package.json` and sources):**
+  - **React 18** with **Create React App** (`react-scripts` 5.x).
+  - **TypeScript** enabled (`typescript`, `tsconfig.json`) with **`allowJs: true`** — **mixed JavaScript and TypeScript** sources.
+  - **React Router DOM v6** (`BrowserRouter`, `Routes`, `Route`).
+  - **Bootstrap 5** + **react-bootstrap** + **react-bootstrap-icons**; some **react-beautiful-dnd** for drag-and-drop on the position board.
+  - **Native `fetch`** for HTTP (no shared API client layer in the frontend today).
+  - **Unit/integration:** CRA’s **Jest** + **React Testing Library** dependencies are declared; **E2E:** **Playwright** (`@playwright/test` in `devDependencies`).
+- **Backend integration:** API base URL is **`http://localhost:3010`** (hardcoded in components). CRA dev server is **`http://localhost:3000`**. CORS on the backend allows `http://localhost:3000`.
+- **Main domains / routes (canonical shell: `frontend/src/App.js`):**
+  - `/` — `RecruiterDashboard` (entry hub).
+  - `/add-candidate` — `AddCandidateForm`.
+  - `/positions` — **`Positions`** (list of positions; **position list interface**).
+  - `/positions/:id` — **`PositionDetails`** (Kanban by interview step; **primary “position interface” for this exercise**).
+- **Contracts and data docs:** `backend/api-spec.yaml`, `backend/ModeloDatos.md`.
+- **Course README:** Root `README.md` describes the AI4Devs QA exercise (E2E scope, suggested `data-testid`s, `tests/e2e/position.spec.ts`). Treat it as **product/test scope guidance**; this rule is the **engineering convention** reference.
+
+## 2. Architecture Standards
+
+- **Pattern:** Monolithic CRA SPA, **route-level screens** colocated under `frontend/src/components/` (no feature-folder structure yet).
+- **Routing:** Centralized in **`frontend/src/App.js`**. **MUST NOT** treat `frontend/src/App.tsx` (if present) as the routing source of truth — see `.cursor/agents/qa-developer.md`.
+- **State:** **Local React state** (`useState`, `useEffect`). No Redux/Zustand/RTK in the repo.
+- **Data access:** Direct **`fetch`** inside components/effects; URLs are **string literals** pointing at **`http://localhost:3010/...`**. **Project-specific assumption:** until a shared client exists, new calls SHOULD follow the same explicit URL style unless you introduce env-based configuration with team agreement.
+- **API paths (backend source of truth: `backend/src/index.ts`, `backend/src/routes/*`, `backend/api-spec.yaml`):**
+  - `GET /positions` — list positions.
+  - `GET /positions/:id/candidates` — candidates for board.
+  - `GET /positions/:id/interviewflow` — interview flow and steps (OpenAPI path is lowercase **`interviewflow`**; route definition in `positionRoutes.ts` matches).
+  - `PUT /candidates/:id` — update application stage (`applicationId`, `currentInterviewStep` in JSON body per OpenAPI).
+- **Conflict note (verify before E2E assertions):** `frontend/src/components/PositionDetails.js` currently requests **`/positions/${id}/interviewFlow`** (camelCase segment). The Express route is **`/:id/interviewflow`**. Path segment casing **may** prevent the interview flow request from succeeding on a case-sensitive server. E2E authoring MUST observe **real network traffic** (`page.waitForRequest`, Playwright MCP network tools) and align expectations with **actual** client URLs until frontend and backend paths are reconciled.
+- **Separation of concerns:** Presentational and data-loading logic live together in components; **no formal service layer** in the frontend (contrast with `frontend/src/services/candidateService.js` which exists but is not the dominant pattern across position views).
+- **Error handling (current code):** Failures are mostly **`console.error`** without consistent user-visible error UI. When adding tests, **do not assume** toast/error banners exist unless you add them.
+- **Accessibility:** Sparse. Example: candidate rating uses **`role="img"`** and **`aria-label="rating"`** on emoji spans in `CandidateCard.js`. Prefer **`getByRole`**, **labels**, and **`data-testid`** (per root README) for stable queries.
+- **Performance:** No code-splitting or suspense patterns observed; keep E2E **lean** (avoid unnecessary waits).
+
+## 3. Engineering Principles
+
+Agents **MUST** apply:
+
+- **KISS / YAGNI:** Prefer the smallest change that matches existing components and fetch patterns; do not add a framework or abstraction layer “for future use” without justification.
+- **DRY:** Extract Playwright helpers or page objects **only after** the second duplication of the same navigation/assertion sequence.
+- **SOLID (frontend-relevant):** Keep components focused; push cross-cutting test utilities into `frontend/tests/**` rather than polluting production `src/`.
+- **High cohesion / low coupling:** Tests **SHOULD** depend on **routes and user-visible behavior**, not private component state.
+- **Readability over cleverness:** Explicit test names and straightforward `await expect`.
+- **Testability:** Favor stable selectors (`data-testid`, roles) over CSS classes from Bootstrap.
+
+## 4. Frontend Coding Standards
+
+- **Naming:**
+  - **React components:** `PascalCase` filenames (e.g. `Positions.tsx`, `PositionDetails.js`, `CandidateCard.js`).
+  - **Hooks:** `use*` if introduced.
+  - **Types:** `Position` type inline in `Positions.tsx` today; **SHOULD** reuse or centralize types only when already established in the file tree (none central yet).
+- **File organization:** `frontend/src/components/*`, `frontend/src/services/*`, `frontend/src/assets/*`, entry `frontend/src/index.tsx`, **`frontend/src/App.js`** as app shell.
+- **Components:** Default exports predominate. Mix of `.js` and `.tsx` is **allowed** by `tsconfig` (`allowJs: true`).
+- **Styling:** Bootstrap classes and `App.css` / `index.css`; no Tailwind/CSS-in-JS observed.
+- **Type safety:** `strict: true` in `tsconfig.json` for TypeScript files; JavaScript files remain untyped unless JSDoc is added.
+- **Validation / loading:** Forms (e.g. add candidate) use controlled inputs; position list filters are **UI-only placeholders** today (no filtering logic wired in `Positions.tsx`).
+- **Comments:** Minimal in production code. **New test/support code MUST follow documentation rules in section 5** (and `.cursor/agents/qa-developer.md` for CodeRabbit).
+
+## 5. Documentation Standards
+
+- **When to comment production code:** Only for **non-obvious business rules**, workaround for API quirks, or security/data assumptions. Avoid redundant narration.
+- **When test/support code requires documentation:** **MUST** include module-level purpose and document exported helpers/fixtures/page objects per **CodeRabbit Docstring Coverage** (see `.cursor/agents/qa-developer.md`).
+- **Style:** JSDoc/TSDoc for exports; **AAA** comments inside tests where setup is non-obvious.
+- **Business logic:** Reference `backend/ModeloDatos.md` / `backend/api-spec.yaml` in test docstrings when asserting domain behavior (e.g. stage IDs vs step names).
+- **Test intent:** `describe` / `test` names **MUST** state user-visible behavior (Spanish UI copy is acceptable in assertion text if matching the app).
+- **Redundancy:** Do not duplicate Playwright API docs; **do** record **environment prerequisites** (services running, seed data).
+
+**Prompt logging:** User prompts for AI assistance **MUST** be appended per `.cursor/rules/10-prompt-tracking.mdc` to `prompts/prompts-ICS.md`. The course README also references `prompts/prompts-[iniciales].md` for student prompts — follow course delivery rules when applicable; **do not remove** the canonical `prompts-ICS` process.
+
+## 6. Testing Standards
+
+- **Unit tests:** **Dependencies present** (`jest-dom`, RTL, `react-scripts`/eslint jest preset). **`frontend/package.json`** declares `"test": "jest --config jest.config.js"` but **`frontend/jest.config.js` is not present in the repository (gap).** Agents **MUST NOT** invent a passing command; **SHOULD** add `jest.config.js` (or align the script with CRA defaults) as a dedicated change when enabling unit tests.
+- **Integration tests:** No established folder; **if added**, prefer `frontend/src/**/*.test.tsx` or `frontend/tests/integration/**` consistent with future `qa-developer` layout.
+- **E2E tests:** **Playwright** only; **`frontend/tests/e2e/`** (see `playwright.config.ts` `testDir`). Root README expects **`position.spec.ts`**; current repo has **`example.spec.ts`** as a stub.
+- **Naming:** `*.spec.ts` (or `.js`) under `tests/e2e/`.
+- **Fixtures / data:** No shared fixture module yet. **SHOULD** use seed data from `backend/prisma/seed.ts` or document required DB state in the test module header. Avoid magic strings duplicated across tests — centralize position IDs only when stable in seed.
+- **Mocking:** Prefer **real backend + seeded DB** for this exercise when possible. **May** use `page.route` or Playwright network mocks for **failure injection** only if explicitly scoped.
+- **Page objects:** **Not in use.** **MAY** add `frontend/tests/e2e/pages/**` or similar when multiple specs share flows; document each exported method (see `qa-developer.md` examples).
+- **Selector strategy:** **Priority:** `data-testid` (recommended in root README) → **roles** (`getByRole`) and accessible names → text that is stable and visible → **last resort** CSS. **MUST NOT** rely solely on generated Bootstrap class names.
+- **Flakiness:** **MUST** `await` assertions and network completion; **avoid** fixed `waitForTimeout` except as temporary debug. Prefer `expect.poll`, `locator.waitFor`, **`page.waitForRequest`/`waitForResponse`** for drag-and-drop stage updates.
+- **Position interface E2E scope:** **MUST** cover **`/positions`** and **`/positions/:id`** together if testing navigation; deep Kanban tests live on **`/positions/:id`**.
+- **Out of scope for E2E:** Pure formatting helpers (e.g. date formatting), individual axios/fetch error branches unless they change UI, and backend validation matrices — use unit/integration tests instead.
+- **Reporting:** For substantial QA work, **MUST** create/update `docs/QA-Report.md` per `.cursor/agents/qa-developer.md`.
+
+## 7. Playwright E2E Standards
+
+- **Config reference:** `frontend/playwright.config.ts`:
+  - **`testDir`:** `./tests/e2e/`
+  - **Parallelism:** `fullyParallel: true`; **CI:** `workers: 1`, `retries: 2`, `forbidOnly: true`
+  - **Reporter:** `html`
+  - **Trace:** `trace: 'on-first-retry'`
+  - **Projects:** `chromium`, `firefox`, `webkit`
+  - **`baseURL` / `webServer`:** commented — agents **MUST** start CRA (**`npm start`** on port **3000**) and backend (**`3010`**) manually or extend config deliberately.
+- **Patterns:** Existing example uses **`page.goto`** with full URL **`https://playwright.dev/`** — new specs **SHOULD** use **`http://localhost:3000/...`** or set `baseURL` in config for consistency.
+- **Lifecycle:** One browser per worker (Playwright default); use **test-scoped context** unless documenting a shared auth pattern (none today — **no login flow**).
+- **Auth/session:** Not implemented; **no** storage state conventions.
+- **Network strategy:** Prefer **live API**; validate **`PUT http://localhost:3010/candidates/:id`** payload when testing drag-and-drop (see `PositionDetails.js` `updateCandidateStep`). **Note:** Body fields are **`applicationId`** and **`currentInterviewStep`** (numeric step id).
+- **Isolation:** Tests **SHOULD** avoid order dependency; use seed data or deterministic IDs from `seed.ts` where practical.
+- **Retries/timeouts:** Rely on config (CI retries); locally **fix** flakiness rather than raising timeouts without cause.
+- **Artifacts:** Use **HTML report** (`npx playwright show-report`). Traces on first retry per config. **MAY** add screenshots only for failure debugging commits (not required by repo today).
+
+**Commands (inferred — no `package.json` script wrapper today):**
+
+```bash
+cd frontend
+npm install
+npx playwright install
+npx playwright test
+npx playwright test tests/e2e/position.spec.ts   # per root README, once file exists
+npx playwright test --ui
+npx playwright show-report
+```
+
+**Playwright MCP:** When enabled in Cursor (`user-playwright` server), agents **SHOULD** use it to inspect DOM, network, and drag/drop behavior before finalizing selectors. **MUST** read tool schemas under the MCP `tools/` descriptors before calling — see Cursor MCP filesystem docs in project configuration.
+
+## 8. Position Interface E2E Guidance
+
+- **Primary files:**
+  - **Routes / shell:** `frontend/src/App.js` (`/positions`, `/positions/:id`).
+  - **List UI:** `frontend/src/components/Positions.tsx` — `GET http://localhost:3010/positions`, “Ver proceso” navigates to detail.
+  - **Board UI:** `frontend/src/components/PositionDetails.js` — parallel fetches for interview flow + candidates; **`DragDropContext`**; updates via **`PUT /candidates/:id`**.
+  - **Children:** `frontend/src/components/StageColumn.js` (`Droppable`, column header = step **title**), `frontend/src/components/CandidateCard.js` (`Draggable`).
+  - **Backend:** `backend/src/routes/positionRoutes.ts`, `backend/src/routes/candidateRoutes.ts`, controllers/services under `backend/src/presentation/` and `backend/src/application/`.
+- **Expected E2E scope (per root `README.md` + actual UI):**
+  - **Load:** Position **title/header**, **columns** per interview step, **cards** in expected columns (names and/or ratings).
+  - **Interaction:** **Drag** a candidate card to another column; assert **visual** column change and **outbound PUT** to **`/candidates/{id}`** with correct JSON (and successful response if backend available).
+  - **Navigation:** From dashboard or `/positions`, open a position detail board.
+- **Critical flows:** List → open detail; board renders; drag candidate between stages; optional: open candidate details **Offcanvas** (`CandidateDetails`) via card click if in scope.
+- **Edge cases:** Empty stages; single-step flow; API **failure** (no error UI today — document as limitation rather than over-asserting); **race** between interview flow and candidates fetch (ordering in `useEffect`).
+- **Not for E2E:** Step ID mapping logic vs `currentInterviewStep` string matching in `fetchCandidates`; unit-test the mapping if brittle.
+- **Documentation / reporting:** Module docstring on `position.spec.ts`; reference **`docs/QA-Report.md`** for runs, evidence, and known URL casing issue (section 2).
+
+## 9. Quality Gates
+
+Run (from repo state at authoring time):
+
+| Step | Command | Notes |
+|------|---------|--------|
+| Frontend install | `cd frontend && npm install` | Required |
+| Frontend build | `cd frontend && npm run build` | CRA production build |
+| Frontend unit tests | `cd frontend && npm test` | **Likely broken** until `jest.config.js` exists or script is fixed — **document in QA report** if unchanged |
+| E2E | `cd frontend && npx playwright test` | Requires app + API + DB seed running |
+| Backend tests (regression) | `cd backend && npm test` | Optional for frontend-only PRs; run when touching cross-cutting behavior |
+
+**Coverage:** `.cursor/agents/qa-developer.md` targets **>95%** frontend coverage when unit tests exist. **Project-specific assumption:** gate is **aspirational** until Jest config is repaired and suites exist.
+
+**CodeRabbit:** Treat **Docstring Coverage** as mandatory for **generated** test/support code (module + exported symbol docs). See `.cursor/agents/qa-developer.md`.
+
+**Lint/types:** CRA ESLint via `eslintConfig` in `frontend/package.json`; no separate `npm run lint` script. Typecheck is implicit via CRA/webpack for TS files.
+
+## 10. Agent Execution Rules
+
+Agents **MUST:**
+
+1. **Inspect** existing components, routes, and `playwright.config.ts` **before** writing tests.
+2. **Avoid** new architecture (state libraries, folder rewrites) unless the user explicitly requests it.
+3. **Keep scope** to the requested files (tests, minimal selector hooks like `data-testid`).
+4. **Document** generated tests/helpers per sections 5–6 and `qa-developer.md`.
+5. **Update** `docs/QA-Report.md` when delivering substantive QA changes (per agent doc).
+6. **Preserve** public component APIs and routes unless explicitly asked.
+
+Agents **MUST NOT:**
+
+- Change backend code unless explicitly requested.
+- Contradict `.cursor/rules/10-prompt-tracking.mdc` or skip `prompts/prompts-ICS.md` logging when file tools work.
+- Rely on outdated path names from prose (e.g. `/candidate/:id`) when **`/candidates/:id`** is the real OpenAPI path.
+
+## Validation Checklist
+
+Use this before opening a PR for **position** E2E work:
+
+- [ ] Routes verified in `frontend/src/App.js` (`/positions`, `/positions/:id`).
+- [ ] Specs live under `frontend/tests/e2e/` and match `playwright.config.ts` `testDir`.
+- [ ] Selectors prefer `data-testid` and/or **roles**, not brittle Bootstrap classes.
+- [ ] Tests use **`http://localhost:3000`** (or configured `baseURL`) and assume API on **`http://localhost:3010`**.
+- [ ] Network assertions for drag-and-drop target **`PUT /candidates/:id`** with **`applicationId`** and **`currentInterviewStep`**, matching live client behavior.
+- [ ] **Interview flow URL casing** checked against actual browser requests vs `backend/src/routes/positionRoutes.ts`.
+- [ ] No unjustified `waitForTimeout`; assertions are **await**-based or network-driven.
+- [ ] Module + exported helper documentation satisfies **CodeRabbit Docstring Coverage** expectations.
+- [ ] `docs/QA-Report.md` updated if required by `.cursor/agents/qa-developer.md`.
+- [ ] `npm run build` in `frontend` succeeds; `npx playwright test` passes locally with documented prerequisites.
+- [ ] `frontend` Jest script/`jest.config.js` gap noted or fixed if unit tests are claimed in the PR.
+- [ ] Prompt usage logged per `.cursor/rules/10-prompt-tracking.mdc` in `prompts/prompts-ICS.md`.
