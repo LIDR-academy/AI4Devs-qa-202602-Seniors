@@ -11,6 +11,10 @@
 
 # testing
 **/coverage
+**/test-results/
+**/playwright-report/
+**/playwright/.cache/
+**/blob-report/
 
 # production
 **/build
