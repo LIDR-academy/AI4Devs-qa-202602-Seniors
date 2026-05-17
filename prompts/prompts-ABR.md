@@ -175,14 +175,20 @@ npx playwright show-report
 
 #### Salida de `npm run test:e2e` (reporter list + html)
 
+**Captura en el repositorio:** en [`prompts/image.png`](image.png) hay una captura de terminal ejecutando `npm run test:e2e` en `frontend/` (comando `playwright test`, 2 workers, ambos escenarios en verde).
+
+![Ejecución de npm run test:e2e — 2 tests passed](image.png)
+
 ```
 Running 2 tests using 2 workers
 
-  ok 1 [chromium] › e2e\position-pipeline.spec.ts › Position pipeline (Kanban) › Escenario 1: carga la pantalla de position con título, fases y candidatos (1.5s)
-  ok 2 [chromium] › e2e\position-pipeline.spec.ts › Position pipeline (Kanban) › Escenario 2: arrastra candidato a otra fase y persiste con PUT al backend (2.4s)
+  ok 1 [chromium] › e2e\position-pipeline.spec.ts › Position pipeline (Kanban) › Escenario 1: carga la pantalla de position con título, fases y candidatos (1.3s)
+  ok 2 [chromium] › e2e\position-pipeline.spec.ts › Position pipeline (Kanban) › Escenario 2: arrastra candidato a otra fase y persiste con PUT al backend (2.0s)
 
-  2 passed (4.0s)
+  2 passed
 ```
+
+*En la captura, los tiempos por test son ~1,3 s y ~2,0 s; la duración total puede variar ligeramente entre ejecuciones.*
 
 #### Salida de `npx playwright show-report`
 
@@ -210,8 +216,8 @@ Abrir esa URL en el navegador para ver el informe interactivo (árbol de suites,
 
 | # | Test | Duración aprox. | Resultado |
 |---|------|-----------------|-----------|
-| 1 | `Escenario 1: carga la pantalla de position con título, fases y candidatos` | 1,5 s | passed |
-| 2 | `Escenario 2: arrastra candidato a otra fase y persiste con PUT al backend` | 2,4 s | passed |
+| 1 | `Escenario 1: carga la pantalla de position con título, fases y candidatos` | ~1,3 s (ver `prompts/image.png`) | passed |
+| 2 | `Escenario 2: arrastra candidato a otra fase y persiste con PUT al backend` | ~2,0 s (ver `prompts/image.png`) | passed |
 
 **Escenario 1** — Comprueba título `Data Scientist`, columnas **Initial Screening** y **Technical Interview**, y candidato **John Doe** solo en la primera columna.
 
@@ -222,7 +228,7 @@ Abrir esa URL en el navegador para ver el informe interactivo (árbol de suites,
 - El reporter `html` está configurado en `playwright.config.ts`; cada ejecución de `playwright test` regenera `playwright-report/`.
 - `playwright-report/` y `test-results/` están en `.gitignore` (artefactos locales/CI).
 - En CI, el workflow suba el artefacto `playwright-report` (ver `frontend/.github/workflows/playwright.yml`).
-- Si el puerto **9323** está ocupado, `show-report` puede usar otro puerto; la consola mostrará la URL efectiva.
+- Si el puerto **9323** está ocupado (`EADDRINUSE`), cierra el proceso anterior (`netstat -ano | findstr :9323` → `taskkill /PID … /F`) o usa `npx playwright show-report --port 9324`.
 
 ---
 
