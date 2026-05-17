@@ -1,9 +1,9 @@
 ---
 name: ai-prompt-log
-description: Use when AI assistance affects this exercise and the prompt log in prompts/prompts-mdm.md must stay current.
+description: Use when AI assistance affects this exercise and the prompt log in prompts/prompts-mjtr.md must stay current.
 ---
 
-Append to `prompts/prompts-mdm.md` when AI is used to plan, investigate, implement, review, or rewrite work for the exercise. Skip tiny operational commands with no meaningful prompt.
+Append to `prompts/prompts-mjtr.md` when AI is used to plan, investigate, implement, review, or rewrite work for the exercise. Skip tiny operational commands with no meaningful prompt.
 
 Entry format:
 - Keep chronological numbering.

@@ -14,7 +14,7 @@
 - Create: `AGENTS.md`
 - Create: `docs/project-baseline.md`
 - Create: `docs/superpowers/plans/2026-05-17-playwright-foundation-plan.md`
-- Create: `prompts/prompts-mdm.md`
+- Create: `prompts/prompts-mjtr.md`
 - Create: `.agents/skills/playwright-e2e-helper/SKILL.md`
 - Create: `.agents/skills/ai-prompt-log/SKILL.md`
 - Create: `.agents/agents/e2e-investigator.md`
@@ -31,7 +31,7 @@
 **Files:**
 - Create: `AGENTS.md`
 - Create: `docs/project-baseline.md`
-- Create: `prompts/prompts-mdm.md`
+- Create: `prompts/prompts-mjtr.md`
 
 - [ ] **Step 1: Write the repo guide**
 
@@ -58,7 +58,7 @@
 - [ ] **Step 3: Start the AI prompt log**
 
 ```md
-# Prompts utilizados - MDM
+# Prompts utilizados - MJTR
 
 1. "Clona el repo del ejercicio al mismo nivel del directorio actual."
 2. "Haz un plan con Superpowers para crear primero agentes y skills de utilidad."
@@ -72,7 +72,7 @@ Expected: paths for the three files above
 - [ ] **Step 5: Commit**
 
 ```bash
-git add AGENTS.md docs/project-baseline.md prompts/prompts-mdm.md
+git add AGENTS.md docs/project-baseline.md prompts/prompts-mjtr.md
 git commit -m "docs: add project baseline and prompt log"
 ```
 
@@ -103,7 +103,7 @@ Checklist:
 ```md
 ---
 name: ai-prompt-log
-description: Use before and after major exercise changes to append prompts to prompts/prompts-mdm.md.
+description: Use before and after major exercise changes to append prompts to prompts/prompts-mjtr.md.
 ---
 
 Rules:
@@ -130,7 +130,7 @@ Expected: four new files under `.agents/skills` and `.agents/agents`
 - [ ] **Step 5: Commit**
 
 ```bash
-git add .agents prompts/prompts-mdm.md
+git add .agents prompts/prompts-mjtr.md
 git commit -m "chore: add local agent and skill assets for e2e"
 ```
 
@@ -268,7 +268,7 @@ Expected: both scenarios pass and HTML report is generated
 - [ ] **Step 5: Commit**
 
 ```bash
-git add frontend/tests/e2e/position.spec.ts prompts/prompts-mdm.md
+git add frontend/tests/e2e/position.spec.ts prompts/prompts-mjtr.md
 git commit -m "test: cover position flow with playwright"
 ```
 
@@ -276,7 +276,7 @@ git commit -m "test: cover position flow with playwright"
 
 **Files:**
 - Modify: `README.md`
-- Modify: `prompts/prompts-mdm.md`
+- Modify: `prompts/prompts-mjtr.md`
 
 - [ ] **Step 1: Add exact execution instructions if needed**
 
@@ -306,6 +306,6 @@ Expected: Jest and Playwright suites pass for the modified scope
 - [ ] **Step 5: Commit**
 
 ```bash
-git add README.md prompts/prompts-mdm.md
+git add README.md prompts/prompts-mjtr.md
 git commit -m "docs: add execution evidence and delivery notes"
 ```
