@@ -1,7 +1,7 @@
 # Prompts log
 
 ## Prompt - 2026-05-17T01:54:52Z
-### Agent: agent
+### Agent: Agent
 #### Model: Composer 2
 
 # Persona
@@ -208,7 +208,7 @@ The checklist must help future agents verify that generated E2E tests for the `p
 
 ---
 ## Prompt - 2026-05-17T17:31:56Z
-### Agent: agent
+### Agent: Agent
 #### Model: Claude 4.7 Opus
 
 # Persona
@@ -1187,7 +1187,7 @@ Before completing this task, verify that:
 
 ---
 ## Prompt - 2026-05-17T17:47:52Z
-### Agent: agent
+### Agent: Agent
 #### Model: Claude 4.7 Opus
 
 Generate under @.cursor/ a README file to explain how to use the created agents and skills taking into account the given scenarios for e2e tests.
@@ -1205,3 +1205,47 @@ Generate under @.cursor/ a README file to explain how to use the created agents 
 #### Model: Composer 2
 
 @.cursor/agents/e2e-orchestrator.md run the full position-interface E2E workflow for Scenario 2 (Candidate Phase Change)
+
+---
+## Prompt - 2026-05-17T22:21:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+In @.cursor/skills/test-reporting/SKILL.md around lines 25 - 26, Update the report ID template string "RPT-<YYYYMMDD>-<short-context>" to include a deterministic uniqueness suffix so same-day runs don't collide (for example "RPT-<YYYYMMDD>-<short-context>-<HHMMSS> (UTC)" or a monotonic sequence component), and ensure the code/path that generates the report-id (the "report-id" generation logic referenced in the spec) appends that UTC time or sequence when creating/updating the report file; keep the date portion as UTC for sorting and document the new template in the README text.
+
+---
+## Prompt - 2026-05-17T22:22:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/playwright.config.ts` at line 17, The Playwright config currently enables fullyParallel via fullyParallel: true which causes race conditions because tests share a seeded DB (notably candidate-phase-change.spec.ts and position-page-load.spec.ts); either disable full parallelism by setting fullyParallel to false in the Playwright config, or modify the tests to isolate their data (e.g., use unique candidate fixtures per worker or transactional/atomic restore in candidate-phase-change.spec.ts) so reads in position-page-load.spec.ts cannot observe in-flight mutations—apply the chosen change to the Playwright config and/or the two test files mentioned.
+
+---
+## Prompt - 2026-05-17T22:23:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/candidate-phase-change.spec.ts` around lines 76 - 88, The test currently uses unstable Bootstrap class selectors in variables engineeringCard, initialColumn, technicalColumn, and carlosCard; replace those with stable selectors (prefer data-testid attributes on the job card, column containers and candidate cards or accessible role/name queries) so locators use page.getByTestId('...') or page.getByRole(..., { name: '...' }) instead of '.card', '.card-header', '.card.mb-2'; update the corresponding selector usages in the drag-and-drop assertions and actions and make the same change for the similar locators around lines 113-114 to ensure tests target data-testid/role+name selectors.
+
+---
+## Prompt - 2026-05-17T22:24:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+There were issues while running some tools. Please review the errors and either fix the tool's configuration or disable the tool if it's a critical failure.
+ESLint skipped: no ESLint configuration detected in root package.json. To enable, add eslint to devDependencies.
+
+---
+## Prompt - 2026-05-17T22:25:00Z
+### Agent: Agent
+#### Model: Composer 2
+
+Verify each finding against current code. Fix only still-valid issues, skip the rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position-page-load.spec.ts` around lines 20 - 40, The tests use brittle Bootstrap classes ('.card' / '.card-header'); update engineeringCard, technicalColumn, initialColumn and the phaseTitles checks to use stable selectors (data-testid or accessible role/name) instead: replace the engineeringCard locator with a data-testid-based locator (e.g. page.getByTestId or locator('[data-testid="position-card-<slug>"]) for the "Senior Full-Stack Engineer" card, change the phase header checks in the phaseTitles loop to use data-testid or getByRole('heading',{name: title}) instead of '.card-header', and update technicalColumn and initialColumn to locate columns by data-testid (e.g. '[data-testid="phase-column-Technical Interview"]') then assert candidate names within those containers; ensure names of tests/attributes match the app's data-testid attributes.

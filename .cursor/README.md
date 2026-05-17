@@ -47,6 +47,8 @@ frontend/tests/e2e/<scenario>.spec.ts # Playwright tests
 prompts/prompts-ICS.md                # Append-only prompt log
 ```
 
+**Execution report IDs** (`docs/reports/<report-id>.md`): use `test-reporting`’s canonical pattern **`RPT-<YYYYMMDD>-<short-context>-<HHMMSS>`** with `<YYYYMMDD>` and `<HHMMSS>` in **UTC** (24-hour clock on the suffix, six digits—no colons—so filenames sort by date then time within a day). Each **new** run gets its own `-<HHMMSS>` to avoid collisions; **updates** to the same run keep the existing filename.
+
 ## 2. Agents at a Glance
 
 | Agent | Purpose | Primary Outputs |

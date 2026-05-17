@@ -16,10 +16,10 @@ import type { Page, Locator } from '@playwright/test';
  *
  * @param page Active Playwright page.
  * @param sourceCard Locator for the draggable candidate card.
- * @param destinationColumn Locator for the destination column root `.card` (includes `.card-body`).
+ * @param destinationColumn Locator for the column root (has `data-testid="board-column-body"`).
  */
 async function dragCandidateCardToColumn(page: Page, sourceCard: Locator, destinationColumn: Locator): Promise<void> {
-  const destBody = destinationColumn.locator('.card-body').first();
+  const destBody = destinationColumn.getByTestId('board-column-body');
   await sourceCard.scrollIntoViewIfNeeded();
   await destBody.scrollIntoViewIfNeeded();
 
@@ -60,6 +60,8 @@ test.describe('Candidate phase change', () => {
     const steps = flowPayload.interviewFlow.interviewFlow.interviewSteps;
     const technicalStep = steps.find((s) => s.name === 'Technical Interview');
     expect(technicalStep, 'Technical Interview step').toBeTruthy();
+    const initialStep = steps.find((s) => s.name === 'Initial Screening');
+    expect(initialStep, 'Initial Screening step').toBeTruthy();
 
     const candidatesRes = await request.get(`http://localhost:3010/positions/${engineering!.id}/candidates`);
     expect(candidatesRes.ok()).toBeTruthy();
@@ -73,18 +75,14 @@ test.describe('Candidate phase change', () => {
     expect(carlos, 'Carlos García in seed').toBeTruthy();
 
     await page.goto(`${base}/positions`);
-    const engineeringCard = page.locator('.card').filter({ hasText: 'Senior Full-Stack Engineer' });
+    const engineeringCard = page.getByTestId(`position-list-card-${engineering!.id}`);
     await engineeringCard.getByRole('button', { name: 'Ver proceso' }).click();
     await expect(page.getByRole('heading', { name: 'Senior Full-Stack Engineer' })).toBeVisible();
 
-    const initialColumn = page.locator('.card').filter({
-      has: page.locator('.card-header').filter({ hasText: 'Initial Screening' }),
-    });
-    const technicalColumn = page.locator('.card').filter({
-      has: page.locator('.card-header').filter({ hasText: 'Technical Interview' }),
-    });
+    const initialColumn = page.getByTestId(`board-column-${initialStep!.id}`);
+    const technicalColumn = page.getByTestId(`board-column-${technicalStep!.id}`);
 
-    const carlosCard = initialColumn.locator('.card.mb-2').filter({ hasText: 'Carlos García' });
+    const carlosCard = page.getByTestId(`candidate-card-${carlos!.candidateId}`);
     await expect(carlosCard).toBeVisible();
 
     const putPromise = page.waitForRequest((r) => {
@@ -104,13 +102,12 @@ test.describe('Candidate phase change', () => {
     const putResp = await putReq.response();
     expect(putResp?.status()).toBe(200);
 
-    await expect(technicalColumn.getByText('Carlos García')).toBeVisible({ timeout: 15000 });
+    await expect(technicalColumn.getByTestId(`candidate-card-${carlos!.candidateId}`)).toBeVisible({
+      timeout: 15000,
+    });
 
     /** Restore Initial Screening so Scenario 1 / reruns stay aligned with seed expectations. */
-    const initialStep = steps.find((s) => s.name === 'Initial Screening');
-    expect(initialStep, 'Initial Screening step').toBeTruthy();
-
-    const carlosAfterMove = technicalColumn.locator('.card.mb-2').filter({ hasText: 'Carlos García' });
+    const carlosAfterMove = technicalColumn.getByTestId(`candidate-card-${carlos!.candidateId}`);
     await expect(carlosAfterMove).toBeVisible();
 
     const restorePutPromise = page.waitForRequest((r) => {
@@ -128,6 +125,8 @@ test.describe('Candidate phase change', () => {
     expect(restoreBody.currentInterviewStep).toBe(initialStep!.id);
     expect((await restorePut.response())?.status()).toBe(200);
 
-    await expect(initialColumn.getByText('Carlos García')).toBeVisible({ timeout: 15000 });
+    await expect(initialColumn.getByTestId(`candidate-card-${carlos!.candidateId}`)).toBeVisible({
+      timeout: 15000,
+    });
   });
 });

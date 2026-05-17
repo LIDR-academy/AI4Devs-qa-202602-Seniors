@@ -101,7 +101,7 @@ Agents **MUST** apply:
 
 - **Config reference:** `frontend/playwright.config.ts`:
   - **`testDir`:** `./tests/e2e/`
-  - **Parallelism:** `fullyParallel: true`; **CI:** `workers: 1`, `retries: 2`, `forbidOnly: true`
+  - **Parallelism:** `fullyParallel: false`, `workers: 1` (shared seeded backend state); **CI:** `retries: 2`, `forbidOnly: true`
   - **Reporter:** `html`
   - **Trace:** `trace: 'on-first-retry'`
   - **Projects:** `chromium`, `firefox`, `webkit`

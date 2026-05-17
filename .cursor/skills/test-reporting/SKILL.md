@@ -22,14 +22,14 @@ Use this skill when:
 
 ## Procedure
 
-1. Choose a report ID using the format `RPT-<YYYYMMDD>-<short-context>` (for example, `RPT-20260517-position-suite`). Use UTC dates for sortability.
+1. Choose a report ID using the format `RPT-<YYYYMMDD>-<short-context>-<HHMMSS>` (UTC): `<YYYYMMDD>` and `<HHMMSS>` must be derived from **the same UTC clock instant** used as the authoritative start (or finalize) time for that execution so the suffix is repeatable from the chosen instant and distinguishes same-day reruns—for example `RPT-20260517-position-suite-143052` for a run keyed to `2026-05-17T14:30:52Z`. **New execution** (new Markdown file): always include `-<HHMMSS>`. **Update** an existing artifact: reuse its existing `<report-id>` and filename unless the user explicitly forks a new report.
 2. Create or update `docs/reports/<report-id>.md` with the following structure:
 
    ```md
    # <Report ID> — <Short title>
 
    ## Report ID
-   <RPT-YYYYMMDD-context>
+   <RPT-YYYYMMDD-short-context-HHMMSS> (UTC; date and clock suffix sort lexicographically within a day.)
 
    ## Execution Date
    <ISO 8601 UTC>

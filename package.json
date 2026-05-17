@@ -6,5 +6,6 @@
     "schema": "backend/prisma/schema.prisma"
   },
   "devDependencies": {
+    "eslint": "^9.22.0"
   }
 }
