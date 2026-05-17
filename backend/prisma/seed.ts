@@ -241,6 +241,25 @@ async function main() {
     },
   });
 
+  // Pasos del flujo de Data Scientist (position 2) — alineado con E2E y prompts-ABR
+  const dsInterviewStep1 = await prisma.interviewStep.create({
+    data: {
+      interviewFlowId: interviewFlow2.id,
+      interviewTypeId: interviewType1.id,
+      name: 'Initial Screening',
+      orderIndex: 1,
+    },
+  });
+
+  const dsInterviewStep2 = await prisma.interviewStep.create({
+    data: {
+      interviewFlowId: interviewFlow2.id,
+      interviewTypeId: interviewType2.id,
+      name: 'Technical Interview',
+      orderIndex: 2,
+    },
+  });
+
   // Create Employees
   const employee1 = await prisma.employee.create({
     data: {
@@ -275,7 +294,7 @@ async function main() {
       positionId: position2.id,
       candidateId: candidate1.id,
       applicationDate: new Date(),
-      currentInterviewStep: interviewStep2.id,
+      currentInterviewStep: dsInterviewStep1.id,
     },
   });
 
@@ -312,7 +331,7 @@ async function main() {
       },
       {
         applicationId: application2.id,
-        interviewStepId: interviewStep1.id,
+        interviewStepId: dsInterviewStep1.id,
         employeeId: employee1.id,
         interviewDate: new Date(),
         result: 'Passed',

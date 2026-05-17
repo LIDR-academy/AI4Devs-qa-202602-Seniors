@@ -14,46 +14,48 @@ const PositionsDetails = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchInterviewFlow = async () => {
+        const loadPipeline = async () => {
             try {
-                const response = await fetch(`http://localhost:3010/positions/${id}/interviewFlow`);
-                const data = await response.json();
-                const interviewSteps = data.interviewFlow.interviewFlow.interviewSteps.map(step => ({
-                    title: step.name,
-                    id: step.id,
-                    candidates: []
-                }));
-                setStages(interviewSteps);
-                setPositionName(data.interviewFlow.positionName);
-            } catch (error) {
-                console.error('Error fetching interview flow:', error);
-            }
-        };
+                const flowRes = await fetch(
+                    `http://localhost:3010/positions/${id}/interviewFlow`
+                );
+                const flowData = await flowRes.json();
+                const flowPayload = flowData.interviewFlow;
+                const interviewSteps = flowPayload.interviewFlow.interviewSteps.map(
+                    (step) => ({
+                        title: step.name,
+                        id: step.id,
+                        candidates: [],
+                    })
+                );
+                setPositionName(flowPayload.positionName);
 
-        const fetchCandidates = async () => {
-            try {
-                const response = await fetch(`http://localhost:3010/positions/${id}/candidates`);
-                const candidates = await response.json();
-                setStages(prevStages =>
-                    prevStages.map(stage => ({
+                const candidatesRes = await fetch(
+                    `http://localhost:3010/positions/${id}/candidates`
+                );
+                const candidates = await candidatesRes.json();
+                setStages(
+                    interviewSteps.map((stage) => ({
                         ...stage,
                         candidates: candidates
-                            .filter(candidate => candidate.currentInterviewStep === stage.title)
-                            .map(candidate => ({
+                            .filter(
+                                (candidate) =>
+                                    candidate.currentInterviewStep === stage.title
+                            )
+                            .map((candidate) => ({
                                 id: candidate.candidateId.toString(),
                                 name: candidate.fullName,
                                 rating: candidate.averageScore,
-                                applicationId: candidate.applicationId
-                            }))
+                                applicationId: candidate.applicationId,
+                            })),
                     }))
                 );
             } catch (error) {
-                console.error('Error fetching candidates:', error);
+                console.error('Error loading position pipeline:', error);
             }
         };
 
-        fetchInterviewFlow();
-        fetchCandidates();
+        void loadPipeline();
     }, [id]);
 
     const updateCandidateStep = async (candidateId, applicationId, newStep) => {
