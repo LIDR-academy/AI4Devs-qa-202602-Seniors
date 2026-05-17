@@ -142,3 +142,25 @@ missing/renamed; keep references to discoverPhaseColumns and the test name to
 locate and update the assertion.
 
 **What solves?**: Fixes a test that passes if only one phase column exists (> 0), so it won't detect missing or renamed phases. The complete rendered set needs to be validated against the planned contracting phases.
+
+16. Verify each finding against current code. Fix only still-valid issues, skip the
+    rest with a brief reason, keep changes minimal, and validate.
+
+In `@frontend/tests/e2e/position.spec.ts` around lines 30 - 51, The
+dragCandidateCard helper uses fixed waitForTimeout calls which cause flakiness;
+replace those sleeps with state-based waits: before starting, await
+fromLocator.waitFor({ state: 'visible' }) or
+fromLocator.waitForElementState('stable') and ensure the element is in view
+(e.g. fromLocator.scrollIntoViewIfNeeded()), after moving the mouse and calling
+page.mouse.down() wait for an observable drag start (e.g. await
+page.waitForEvent('dragstart') or await
+fromLocator.waitForElementState('hidden'/'detached') if applicable), replace the
+mid-drag wait with awaiting the destination (await toLocator.waitFor({ state:
+'visible' }) or toLocator.waitForElementState('stable')), and after
+page.mouse.up() wait for the expected post-drop state (for example await
+expect(toLocator).toContainText(...) or await page.waitForResponse(...) if the
+drop triggers network activity). Use the function and parameter names
+dragCandidateCard, fromLocator, toLocator and the mouse actions
+(page.mouse.move/down/up) to locate where to apply these changes.
+
+**What solves?**: Replaces fixed sleeps with state-based waits to reduce flaky drag/drop tests.
