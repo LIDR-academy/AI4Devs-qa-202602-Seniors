@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": false,
+    "jsx": "react-jsx",
+    "noEmit": true
+  },
+  "include": [
+    "playwright.config.ts",
+    "features/**/*.ts"
+  ]
+}

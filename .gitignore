@@ -12,6 +12,11 @@
 # testing
 **/coverage
 
+# Playwright generated output
+frontend/.features-gen/
+frontend/playwright-report/
+frontend/test-results/
+
 # production
 **/build
 **/dist
