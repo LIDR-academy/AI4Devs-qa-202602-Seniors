@@ -107,8 +107,9 @@ When tests fail, enter the fix loop (max 3 attempts):
    - This categorization matters because it determines what gets fixed (test file vs app code)
 3. **Fix the right thing:**
    - Test bug → update the test file
-   - App bug → fix the application code, explain what was broken
+   - App bug → report the application issue, do not modify production code from this skill
    - Timing issue → add appropriate `waitFor` or increase timeout on that specific action
+
 4. **Rerun and document** — Always rerun after fixing and document the command used:
    ```bash
    npx playwright test --reporter=line 2>&1
