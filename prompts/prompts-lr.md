@@ -1,4 +1,4 @@
-# Prompts Used — LR
+# Prompts Used — LR [Claude Code]
 
 1. I want to create a claude.md as an orchestrator agent for implementing e2e tests in a project with a React frontend and Node.js backend. The project has sufficient documentation to understand architecture, technologies, and tasks to complete. Can you help me create this agent acting as a prompt engineering expert with meta-prompting techniques? Can you ask me what you need for the task?
 
@@ -91,3 +91,7 @@ after supplying artifacts), ensuring the lines that currently reference `state:
 "blocked"` and the suggested action are replaced with the corrected guidance.
 
 **What solves?**: The available opsx commands are: apply, archive, explore, and proposal. There is no continue.md file in .claude/commands/opsx/. It suggest an alternative action for the blocked state (for example, update missing artifacts or use /opsx:propose).
+
+11. The backend isn't working as it should. Could we fix the issues?
+
+12. I have 30 end-to-end tests that are failing. Could we investigate what's not working and fix them?
