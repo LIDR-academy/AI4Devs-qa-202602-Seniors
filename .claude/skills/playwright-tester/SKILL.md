@@ -31,8 +31,8 @@ without paying for execution.
 Before first use, verify the project has Playwright installed. If not, install it:
 
 ```bash
-npm install -D @playwright/test
-npx playwright install chromium
+pnpm install -D @playwright/test
+pnpm dlx playwright install chromium
 ```
 
 Check for an existing `playwright.config.ts`. If missing, create a minimal one appropriate to the
