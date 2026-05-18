@@ -11,6 +11,10 @@
 
 # testing
 **/coverage
+allure-results/
+allure-report/
+playwright-report/
+test-results/
 
 # production
 **/build
@@ -26,3 +30,9 @@ yarn-error.log*
 .vscode
 
 # .env
+
+#Test results
+test-results/
+playwright-report/
+allure-results/
+allure-report/
