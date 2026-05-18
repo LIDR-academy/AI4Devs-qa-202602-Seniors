@@ -65,7 +65,7 @@ const defaultCandidateData: Record<string, Omit<Candidate, 'fullName' | 'current
   },
 };
 
-const test = base.extend<{ positionBoard: PositionBoardContext }>({
+export const test = base.extend<{ positionBoard: PositionBoardContext }>({
   positionBoard: async ({}, use) => {
     await use({
       positionId: 1,
