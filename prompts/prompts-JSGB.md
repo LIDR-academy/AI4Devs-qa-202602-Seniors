@@ -668,3 +668,53 @@ const destColumn = page.locator('[data-testid="phase-column-manager-interview"]'
 | 52 | `phase-column-prueba-técnica` | `phase-column-manager-interview` |
 
 **Verification:** `pnpm tsc --noEmit` passed with no errors.
+
+---
+
+## Prompt 29: Implement backend tickets for new architecture
+
+**Task:** Implement 7 backend tickets (NOV-15 to NOV-21) for new architecture.
+
+**Prompt:**
+```
+Implement these open Linear tickets:
+- NOV-15: Extract PrismaClient Singleton
+- NOV-16: Define CandidateRepository Interface
+- NOV-17: Introduce Custom Error Types
+- NOV-18: Implement PrismaCandidateRepository
+- NOV-19: Fix POST / Route Inconsistency
+- NOV-20: Update Tests for New Architecture
+- NOV-21: Refactor candidateService with Repository and Typed Errors
+
+The tasks involve:
+1. Creating backend/src/database/prisma.ts singleton
+2. Updating all domain models to use shared prisma
+3. Creating CandidateRepository interface
+4. Creating error classes (ValidationError, DuplicateEmailError, NotFoundError)
+5. Creating PrismaCandidateRepository implementing the interface
+6. Refactoring CandidateService to use dependency injection
+7. Updating tests to mock the repository interface
+8. Fixing POST route to use controller directly
+
+Use subagents as needed (qa-agent for tests, change-reviewer for validation).
+```
+
+**Result:** All 7 tickets implemented and completed.
+
+**Changes made:**
+
+| Ticket | Title | Files Created/Modified |
+|--------|-------|------------------------|
+| NOV-15 | Extract PrismaClient Singleton | Created `backend/src/database/prisma.ts`; Updated 12 domain models, `index.ts`, `positionService.ts`, `seed.ts` |
+| NOV-16 | Define CandidateRepository Interface | Created `backend/src/application/repositories/CandidateRepository.ts` |
+| NOV-17 | Introduce Custom Error Types | Created `backend/src/application/errors/AppError.ts` with ValidationError, DuplicateEmailError, NotFoundError |
+| NOV-18 | Implement PrismaCandidateRepository | Created `backend/src/application/repositories/PrismaCandidateRepository.ts` |
+| NOV-19 | Fix POST / Route Inconsistency | Updated `backend/src/routes/candidateRoutes.ts` |
+| NOV-21 | Refactor candidateService | Refactored `backend/src/application/services/candidateService.ts` to use CandidateService class with dependency injection |
+| NOV-20 | Update Tests | Updated `candidateService.test.ts` and `candidateController.test.ts` |
+
+**Quality Gates:**
+- `pnpm tsc --noEmit`: ✅ Pass (0 errors)
+- `pnpm lint`: ✅ Pass (0 errors, 12 warnings)
+- `pnpm test`: ✅ Pass (15/15 tests)
+- Linear tickets: ✅ All 7 marked as Done
