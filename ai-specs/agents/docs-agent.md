@@ -83,6 +83,69 @@ Task: Create documentation for {feature/context}
 Type: {spec | api-contract | adr | requirements}
 Scope: {what to cover}
 Output: {where to save, format}
+Complexity: {simple | complex}  ← assigned by orchestrator
+```
+
+## Two-Mode Workflow (Hybrid Approach)
+
+### Mode Selection
+
+| Complexity | Path | Grill Invocation |
+|------------|------|------------------|
+| **Simple** | docs-agent → ticket creation (direct) | No |
+| **Complex** | grill-with-docs → docs-agent → ticket creation | Yes |
+
+### Complexity Assessment
+
+Assess task complexity based on these signals:
+
+**Complex indicators (trigger grill-with-docs):**
+- New god node touching 3+ communities (from graphify-out/GRAPH_REPORT.md)
+- Cross-boundary edges (e.g., `validateCandidateData()` bridging communities)
+- Vague acceptance criteria (e.g., "add validation", "improve UX")
+- Edge cases mentioned but not specified
+- Terminology that might conflict with existing CONTEXT.md
+- Architectural implications (affects multiple layers)
+- Unclear boundaries between entities
+
+**Simple indicators (direct processing):**
+- Existing entity, well-defined scope
+- Clear acceptance criteria with concrete examples
+- No terminology ambiguity
+- No cross-boundary effects
+- Straightforward CRUD operations
+
+### Complex Task: Grill-with-docs Pre-processing
+
+When complexity = **complex**:
+
+```
+1. INVOKE grill-with-docs
+   - Load CONTEXT.md (project glossary)
+   - Load graphify-out/GRAPH_REPORT.md (god nodes, communities)
+   - Run grilling session to:
+     a) Challenge plan against domain model
+     b) Sharpen fuzzy/overloaded terms
+     c) Probe edge cases with concrete scenarios
+     d) Cross-reference with code to verify assumptions
+   - UPDATE CONTEXT.md inline when terms resolved
+   - CREATE ADRs sparingly (hard-to-reverse + surprising + real trade-off)
+
+2. PASS refined requirements to docs-agent
+
+3. CREATE ticket from refined requirements
+```
+
+### Simple Task: Direct Processing
+
+When complexity = **simple**:
+
+```
+1. ANALYZE requirements (completeness, clarity, feasibility, testability, dependencies)
+2. WRITE spec
+3. CREATE Linear ticket
+4. SYNC to docs/tickets/
+5. LINK in spec
 ```
 
 ## Spec Writing Protocol
@@ -165,6 +228,48 @@ When reviewing requirements, identify:
 4. **Testability** — can this be verified automatically?
 5. **Dependencies** — what else needs to happen first?
 
+### Complexity-Based Refinement
+
+**For simple tasks:** Apply checklist above, create ticket directly.
+
+**For complex tasks:** Run grill-with-docs first to stress-test requirements before applying checklist. Use these grill-with-docs prompts:
+
+```
+INVOKE grill-with-docs with:
+- Task description
+- CONTEXT.md (existing glossary)
+- graphify-out/GRAPH_REPORT.md (god nodes for reference)
+- Goal: Sharpen requirements, resolve terminology, probe edge cases
+
+AFTER grilling session:
+- UPDATED requirements (refined)
+- CONTEXT.md (updated glossary if terms resolved)
+- ADR(s) created if hard-to-reverse decisions made
+```
+
+## Grill-with-docs Integration
+
+The grill-with-docs session is critical for complex tasks because it:
+
+1. **Challenges against glossary** — catches term conflicts with existing CONTEXT.md
+2. **Sharpens fuzzy language** — proposes precise canonical terms
+3. **Probes edge cases** — forces concrete scenarios that expose boundaries
+4. **Cross-references code** — verifies stated behavior matches implementation
+5. **Updates CONTEXT.md inline** — captures resolved terms immediately
+6. **Creates ADRs sparingly** — only when all three criteria met:
+   - Hard to reverse (cost of change is meaningful)
+   - Surprising without context (future reader wondering "why?")
+   - Result of real trade-off (genuine alternatives, specific reasons)
+
+### Grill Session Trigger Checklist
+
+Before invoking grill-with-docs, confirm at least 2 of these:
+- [ ] Task touches 3+ god nodes
+- [ ] Vague acceptance criteria present
+- [ ] Cross-boundary effects identified
+- [ ] Terminology might conflict with CONTEXT.md
+- [ ] Edge cases mentioned but not specified
+
 ## Quality Checklist
 
 - [ ] Spec includes user story format
@@ -217,6 +322,8 @@ OUTPUT:
 - NEVER leave open questions unresolved without tracking
 - NEVER create docs that contradict code
 - NEVER skip README update when triggered by change-reviewer
+- NEVER skip grill-with-docs for complex tasks (violates quality gate)
+- NEVER skip complexity assessment (leads to wrong workflow path)
 
 ## Output Format
 

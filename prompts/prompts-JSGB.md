@@ -538,3 +538,97 @@ change-reviewer validates gates (tsc, lint, test, e2e)
 APPROVED: docs-agent updates README if needed → complete
 REJECTED: return to implementing agent with fixes
 ```
+
+---
+
+## Prompt 26: Integrate grill-with-docs with harness (Option D - Hybrid)
+
+**Task:** Integrate grill-with-docs skill into the harness-engineering workflow using the hybrid approach.
+
+**Prompt:**
+```
+Using multi-agent-investigation skill, analyze how to integrate grill-with-docs with the current harness implementation:
+- Current docs-agent creates Linear tickets directly without refinement
+- grill-with-docs challenges plans, sharpens terminology, probes edge cases, updates CONTEXT.md
+- Goal: refine tickets even more before implementation
+
+Use these angles:
+1. docs-agent workflow analysis (explore)
+2. Requirements refinement patterns research (general)
+3. Integration design options (general)
+
+Design options to evaluate:
+- Option A: Pre-processing in docs-agent (simple tasks get light questioning, complex get full interrogation)
+- Option B: Dedicated refinement agent (new agent between orchestrator and delegation)
+- Option C: On-demand during planning (orchestrator invokes grill-with-docs for complex tasks only)
+- Option D: Hybrid (docs-agent handles simple directly, complex triggers grill-with-docs first)
+
+Score each on: implementation complexity (1-5), ticket quality impact (1-5), risk level (1-5)
+```
+
+**Result:** Multi-agent investigation converged on **Option D (Hybrid)** as optimal:
+- Complexity: 3/5
+- Ticket quality: 5/5
+- Risk: 2/5
+
+**Changes implemented:**
+
+1. **Updated `ai-specs/agents/docs-agent.md`:**
+   - Added Two-Mode Workflow section (simple/complex paths)
+   - Added Complexity Assessment with indicators table
+   - Added Complex Task: Grill-with-docs Pre-processing section
+   - Added Simple Task: Direct Processing section
+   - Added Grill Session Trigger Checklist
+   - Added Complexity-Based Refinement section
+   - Updated anti-patterns (NEVER skip grill-with-docs for complex tasks)
+
+2. **Updated `ai-specs/agents/orchestrator.md`:**
+   - Added complexity classification to Core Responsibilities
+   - Updated Workflow to include CLASSIFY complexity step
+   - Added Complexity Classification table with signals
+   - Added Routing Based on Complexity ASCII diagram
+   - Updated Orchestration Pattern diagram to show hybrid flow
+   - Added Complexity-Based TDD Flow section
+   - Updated anti-patterns (NEVER skip complexity classification, NEVER skip grill-with-docs for complex tasks)
+
+3. **Updated `ai-specs/skills/harness-engineering/SKILL.md`:**
+   - Updated to v1.2.0
+   - Replaced Step 3.3 with complexity-based routing flow
+   - Added Step 3.4: Complexity Classification
+   - Added Step 3.5: Hybrid Workflow: grill-with-docs Integration
+   - Updated Step 3.6: Memory Architecture (added CONTEXT.md)
+   - Updated Integration with Orchestrator diagram (hybrid version)
+   - Added Key Integration Points table
+
+4. **Created `CONTEXT.md`** (project root):
+   - Domain glossary with entity definitions
+   - Key validators (cross-community bridges)
+   - Service boundaries (communities)
+   - Terminology notes
+   - Rules for adding terms
+
+**Hybrid Workflow:**
+```
+SIMPLE:
+  Task → docs-agent (direct ticket creation)
+
+COMPLEX:
+  Task → grill-with-docs (stress-test) → docs-agent (refined ticket) → implementation
+```
+
+**Complexity Classification Rule:** 2+ complex indicators → **Complex**; otherwise → **Simple**
+
+---
+
+## Prompt 27: Update graphify after integration
+
+**Task:** Update the knowledge graph after integrating grill-with-docs and creating CONTEXT.md.
+
+**Prompt:**
+```
+Run graphify update . to incorporate:
+- New CONTEXT.md file
+- Updated ai-specs files with grill-with-docs integration
+```
+
+**Result:** Graph updated with 127 nodes, 103 edges, 39 communities (CONTEXT.md now part of knowledge graph).

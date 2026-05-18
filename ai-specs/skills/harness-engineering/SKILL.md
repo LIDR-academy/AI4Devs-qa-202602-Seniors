@@ -2,7 +2,7 @@
 name: harness-engineering
 description: Build optimized agentic systems tailored to a specific project by analyzing its structure, patterns, and domain. Use when designing multi-agent architectures, setting up planning/memory systems, or implementing project-specific AI workflows. Trigger: /harness
 author: AI4Devs
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Harness Engineering
@@ -267,21 +267,99 @@ quality_gates:
 ### 3.3 Define Orchestration Flow
 
 ```
-Orchestration Pattern: hierarchical
+Orchestration Pattern: hierarchical with complexity-based routing
 
 Flow:
 1. User task received
-   → orchestrator (analyze, decompose)
-   → docs-agent (requirements, Linear ticket)
-   → backend-agent OR frontend-agent (implement)
-   → qa-agent (tests: unit + E2E)
-   → orchestrator (validate gates)
-   → Output
+   → orchestrator (analyze, decompose, CLASSIFY complexity)
+   │
+   ├──[SIMPLE]─────────────────────────────────────────────┐
+   │                                                        │
+   │  → docs-agent (direct ticket creation)                 │
+   │  → backend-agent OR frontend-agent (implement)         │
+   │  → qa-agent (tests: unit + E2E)                       │
+   │                                                       │
+   └──[COMPLEX]────────────────────────────────────────────┤
+                                                           │
+   │  → grill-with-docs (stress-test plan)                  │
+   │    • Challenge against domain model                   │
+   │    • Sharpen fuzzy terminology                        │
+   │    • Probe edge cases with concrete scenarios         │
+   │    • Cross-reference with code                        │
+   │    • UPDATE CONTEXT.md inline                         │
+   │    • CREATE ADRs (if criteria met)                    │
+   │                                                        │
+   │  → docs-agent (refined requirements → ticket)          │
+   │  → backend-agent OR frontend-agent (implement)        │
+   │  → qa-agent (tests: unit + E2E)                       │
+   │                                                       │
+   └──► orchestrator (validate gates)                      │
+        → Output
 
 Gate conditions:
   - Quality: tsc clean, lint clean, tests pass ≥70%
   - Architecture: no layer violations
   - Linear: ticket created/updated
+  - Complex tasks: grill-with-docs completed
+```
+
+### 3.4 Complexity Classification
+
+Classify each task before delegation:
+
+| Signal | Complex Indicator | Simple Indicator |
+|--------|-------------------|------------------|
+| **God nodes** | Touches 3+ god nodes | Existing entity, well-defined scope |
+| **Community edges** | Cross-boundary (validateCandidateData() type) | Within single community |
+| **Acceptance criteria** | Vague ("add validation", "improve UX") | Concrete with examples |
+| **Edge cases** | Mentioned but not specified | All specified |
+| **Terminology** | May conflict with CONTEXT.md | Clear, matches glossary |
+| **Architecture** | Affects multiple layers | Single layer impact |
+
+**Rule:** 2+ complex indicators → **complex**; otherwise → **simple**
+
+### 3.5 Hybrid Workflow: grill-with-docs Integration
+
+For complex tasks, grill-with-docs runs BEFORE ticket creation:
+
+```
+grill-with-docs Session:
+  INPUT:
+    - Task description
+    - CONTEXT.md (project glossary)
+    - graphify-out/GRAPH_REPORT.md (god nodes, communities)
+
+  PROCESS:
+    1. Challenge plan against domain model
+    2. Propose precise canonical terms for vague ones
+    3. Discuss concrete scenarios to probe edge cases
+    4. Cross-reference with code to verify assumptions
+    5. Update CONTEXT.md when terms resolved
+    6. Create ADR if: hard-to-reverse + surprising + real trade-off
+
+  OUTPUT:
+    - Refined requirements (sharpened)
+    - Updated CONTEXT.md (if terms resolved)
+    - ADR(s) created (sparingly)
+
+  PASS refined requirements to docs-agent for ticket creation
+```
+
+### 3.6 Memory Architecture (Updated)
+
+```
+Short-term (per task):
+  - Current file context
+  - Active tool outputs
+  - Conversation messages
+
+Long-term (across sessions):
+  - Project structure knowledge (graphify-out/)
+  - Architectural patterns learned
+  - Domain vocabulary (entity names, conventions)
+  - CONTEXT.md (project glossary - updated by grill-with-docs)
+
+Implementation: Graph-based (graphify) + CONTEXT.md for terminology
 ```
 
 ## Step 4: Generate Implementation
@@ -455,27 +533,75 @@ OUTPUT:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Integration with Orchestrator
+### Integration with Orchestrator (Hybrid)
 
 ```
 User Task
     │
     ▼
-Orchestrator (analyze, decompose, delegate)
+┌─────────────────────────────────────────────────────────────────┐
+│                     ORCHESTRATOR                                 │
+│  (analyze, decompose, CLASSIFY complexity)                       │
+└─────────────────────────────────────────────────────────────────┘
     │
-    ├─► docs-agent (requirements, Linear ticket)
-    │
-    ├─► backend-agent OR frontend-agent (implement)
-    │
-    ├─► qa-agent (tests: unit + E2E)
+    ├──[SIMPLE]────────────────────────────────────────────────────┐
+    │                                                              │
+    └─► docs-agent (direct ticket creation)                        │
+              │                                                    │
+              └─► backend/frontend (implementation)                │
+                                                               ┌───┘
+    └──[COMPLEX]──────────────────────────────────────────────┐  │
+                                                              │  │
+    ┌──────────────────────────────────────────────────────┐  │  │
+    │              grill-with-docs                          │  │  │
+    │  • Challenge against domain model                    │  │  │
+    │  • Sharpen fuzzy terminology                         │  │  │
+    │  • Probe edge cases with concrete scenarios          │  │  │
+    │  • Cross-reference with code                        │  │  │
+    │  • UPDATE CONTEXT.md inline                         │  │  │
+    │  • CREATE ADRs (if criteria met)                     │  │  │
+    └──────────────────────────┬───────────────────────────┘  │  │
+                               │                               │  │
+                               ▼                               │  │
+    ┌──────────────────────────────────────────────────────┐  │  │
+    │              docs-agent                              │  │  │
+    │  (CREATE ticket from refined requirements)          │  │  │
+    └──────────────────────────┬───────────────────────────┘  │  │
+                               │                               │  │
+                               ▼                               ▼  │
+                    ┌──────────────────────────────────────────┐ │
+                    │     backend-agent OR frontend-agent       │ │
+                    │     (implementation, TDD, quality gates)  │ │
+                    └──────────────────────┬───────────────────┘ │
+                                             │                    │
+                                             ▼                    │
+    ┌──────────────────────────────────────────────────────────────┐│
+    │                      qa-agent                                ││
+    │  (unit tests + E2E tests)                                    ││
+    └──────────────────────────────────────────────┬───────────────┘│
+                                                   │              │
+                                                   ▼              │
+    ┌──────────────────────────────────────────────────────────────┘
     │
     ▼
-Orchestrator → change-reviewer (final validation)
+┌─────────────────────────────────────────────────────────────────┐
+│                   CHANGE REVIEWER                               │
+│  (final validation gate)                                        │
+└─────────────────────────────────────────────────────────────────┘
     │
-    ├─► APPROVED: docs-agent updates README if needed → complete
+    ├─► APPROVED: docs-agent updates README if needed
     │
     └─► REJECTED: return to implementing agent with fixes
 ```
+
+### Key Integration Points
+
+| Phase | Simple Path | Complex Path |
+|-------|-------------|--------------|
+| **Pre-ticket** | docs-agent (direct) | grill-with-docs → docs-agent |
+| **Ticket creation** | Standard template | Enhanced with refined requirements |
+| **Documentation** | SPEC.md only | SPEC.md + CONTEXT.md + ADRs |
+| **Quality gates** | Standard | + grill-with-docs completion |
 
 ### Quality Gate Commands (Reference)
 

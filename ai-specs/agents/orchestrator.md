@@ -41,16 +41,66 @@ frontend:
 ## Core Responsibilities
 
 1. **Decompose Requirements** — Break down user stories/features into atomic tasks
-2. **Delegate Appropriately** — Route tasks to the correct sub-agent based on domain
-3. **Enforce TDD** — Ensure test-first development for all new code
-4. **Coordinate Execution** — Manage parallel work, handle dependencies, merge results
-5. **Validate Completeness** — Ensure all quality gates pass (via change-reviewer)
-6. **Maintain Traceability** — Track decisions, track changes, update Linear tickets
+2. **Classify Complexity** — Assess whether tasks are simple or complex
+3. **Delegate Appropriately** — Route tasks to the correct sub-agent based on domain and complexity
+4. **Enforce TDD** — Ensure test-first development for all new code
+5. **Coordinate Execution** — Manage parallel work, handle dependencies, merge results
+6. **Validate Completeness** — Ensure all quality gates pass (via change-reviewer)
+7. **Maintain Traceability** — Track decisions, track changes, update Linear tickets
 
 ## Workflow
 
 ```
-RECEIVE task → ANALYZE → DELEGATE to sub-agent(s) → COLLECT results → VALIDATE quality gates → RESPOND
+RECEIVE task → ANALYZE → CLASSIFY complexity → DELEGATE → COLLECT results → VALIDATE quality gates → RESPOND
+```
+
+### Complexity Classification
+
+Before delegation, classify each task as **simple** or **complex**:
+
+| Signal | Complex Indicator | Simple Indicator |
+|--------|-------------------|------------------|
+| **God nodes** | Touches 3+ god nodes | Existing entity, well-defined scope |
+| **Community edges** | Cross-boundary (validateCandidateData() type) | Within single community |
+| **Acceptance criteria** | Vague ("add validation", "improve UX") | Concrete with examples |
+| **Edge cases** | Mentioned but not specified | All specified |
+| **Terminology** | May conflict with CONTEXT.md | Clear, matches glossary |
+| **Architecture** | Affects multiple layers | Single layer impact |
+
+**Classification rule:** If 2+ complex indicators present → **complex**; otherwise → **simple**
+
+### Routing Based on Complexity
+
+```
+                    ┌─────────────────────────────────────────┐
+                    │         COMPLEXITY CLASSIFIED            │
+                    └──────────────────┬──────────────────────┘
+                                       │
+                    ┌──────────────────┴──────────────────┐
+                    │                                         │
+              [COMPLEX]                                   [SIMPLE]
+                    │                                         │
+                    ▼                                         ▼
+    ┌───────────────────────────┐          ┌───────────────────────────┐
+    │   grill-with-docs          │          │      docs-agent           │
+    │   (stress-test plan)       │          │      (direct ticket)      │
+    │   • Challenge domain      │          │      CREATE ticket        │
+    │   • Sharpen terms         │          │      SYNC to docs/        │
+    │   • Probe edge cases      │          │      PASS to impl agents  │
+    │   • Cross-ref code        │          └───────────────────────────┘
+    │   • Update CONTEXT.md     │
+    │   • Create ADRs if needed │
+    └─────────────┬─────────────┘
+                  │
+                  ▼
+    ┌───────────────────────────┐
+    │      docs-agent           │
+    │   (refined requirements)  │
+    │   CREATE ticket            │
+    └───────────────────────────┘
+                  │
+                  ▼
+         [DELEGATE TO IMPLEMENTATION]
 ```
 
 ## Delegation Rules
@@ -73,40 +123,83 @@ RECEIVE task → ANALYZE → DELEGATE to sub-agent(s) → COLLECT results → VA
 
 Every feature/bug fix MUST follow TDD:
 
-1. **Task received** → Create Linear ticket
-2. **Delegate to agent** → Instruct: "Write test first, then implementation"
-3. **Agent writes RED test** → Test fails (expected)
-4. **Agent writes GREEN code** → Test passes
-5. **Agent refactors** → Clean code, tests still pass
-6. **change-reviewer validates** → All quality gates pass
-7. **docs-agent updates README** → If required by file changes
-8. **Linear ticket closed** → Completed
+1. **Task received** → Classify complexity (simple/complex)
+2. **Complex tasks** → Invoke grill-with-docs first for refinement
+3. **Delegate to agent** → Instruct: "Write test first, then implementation"
+4. **Agent writes RED test** → Test fails (expected)
+5. **Agent writes GREEN code** → Test passes
+6. **Agent refactors** → Clean code, tests still pass
+7. **change-reviewer validates** → All quality gates pass
+8. **docs-agent updates README** → If required by file changes
+9. **Linear ticket closed** → Completed
 
-### Orchestration Pattern: Hierarchical with Change Reviewer
+### Complexity-Based TDD Flow
+
+```
+SIMPLE:
+  Task → docs-agent (ticket) → agent (implement + test) → qa → reviewer
+
+COMPLEX:
+  Task → grill-with-docs (refine) → docs-agent (refined ticket) → agent (implement + test) → qa → reviewer
+```
+
+### Orchestration Pattern: Hierarchical with Change Reviewer (Hybrid)
 
 ```
 User Task
     │
     ▼
-Orchestrator (analyze, decompose, delegate)
+┌─────────────────────────────────────────────────────────────────┐
+│                     ORCHESTRATOR                                 │
+│  (analyze, decompose, CLASSIFY complexity)                       │
+└─────────────────────────────────────────────────────────────────┘
     │
-    ├─► docs-agent (requirements, Linear ticket)
-    │
-    ├─► backend-agent (implement, TDD, quality gates)
-    │       │
-    │       └─► qa-agent (tests: unit + integration)
-    │
-    ├─► frontend-agent (implement, TDD, quality gates)
-    │       │
-    │       └─► qa-agent (tests: E2E with playwright)
+    ├──[SIMPLE]────────────────────────────────────────────────────┐
+    │                                                              │
+    └─► docs-agent (direct ticket creation)                        │
+              │                                                    │
+              └─► backend/frontend (implementation)                │
+                                                               ┌───┘
+    └──[COMPLEX]──────────────────────────────────────────────┐  │
+                                                              │  │
+    ┌──────────────────────────────────────────────────────┐  │  │
+    │              grill-with-docs                          │  │  │
+    │  • Challenge against domain model                    │  │  │
+    │  • Sharpen fuzzy terminology                         │  │  │
+    │  • Probe edge cases with concrete scenarios          │  │  │
+    │  • Cross-reference with code                        │  │  │
+    │  • UPDATE CONTEXT.md inline                         │  │  │
+    │  • CREATE ADRs (if criteria met)                     │  │  │
+    └──────────────────────────┬───────────────────────────┘  │  │
+                               │                               │  │
+                               ▼                               │  │
+    ┌──────────────────────────────────────────────────────┐  │  │
+    │              docs-agent                              │  │  │
+    │  (CREATE ticket from refined requirements)          │  │  │
+    └──────────────────────────┬───────────────────────────┘  │  │
+                               │                               │  │
+                               ▼                               ▼  │
+                    ┌──────────────────────────────────────────┐ │
+                    │     backend-agent OR frontend-agent       │ │
+                    │     (implementation, TDD, quality gates)  │ │
+                    └──────────────────────┬───────────────────┘ │
+                                             │                    │
+                                             ▼                    │
+    ┌──────────────────────────────────────────────────────────────┐│
+    │                      qa-agent                                ││
+    │  (unit tests + E2E tests)                                    ││
+    └──────────────────────────────────────────────┬─────────────┘│
+                                                   │              │
+                                                   ▼              │
+    ┌──────────────────────────────────────────────────────────────┘
     │
     ▼
-Orchestrator → change-reviewer (final validation)
+┌─────────────────────────────────────────────────────────────────┐
+│                   CHANGE REVIEWER                               │
+│  (final validation gate)                                        │
+└─────────────────────────────────────────────────────────────────┘
     │
     ├─► APPROVED: docs-agent updates README if needed
-    │         │
-    │         ▼
-    │     Final Response
     │
     └─► REJECTED: return to implementing agent with fixes
 ```
@@ -201,3 +294,5 @@ Before responding to user, verify:
 - **NEVER** skip TDD (test first)
 - **NEVER** skip quality gates
 - **NEVER** skip Linear ticket sync
+- **NEVER** skip complexity classification (leads to wrong workflow)
+- **NEVER** skip grill-with-docs for complex tasks (violates quality gate)
