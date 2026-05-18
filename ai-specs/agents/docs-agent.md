@@ -175,6 +175,40 @@ When reviewing requirements, identify:
 - [ ] Open questions tracked
 - [ ] Diagrams included where helpful
 
+## README Update Responsibility
+
+When triggered by change-reviewer, update README.md for ticket changes:
+
+```
+RECEIVE: README update trigger for {ticket_id}
+FILES CHANGED:
+  - {list of changed files}
+CONTEXT:
+  - {what was implemented}
+  - {why it matters for documentation}
+
+ACTIONS:
+1. READ current README.md
+2. IDENTIFY sections that need updates
+3. UPDATE relevant sections with accurate info
+4. VERIFY updates don't break links
+5. ADD changelog entry if applicable
+
+OUTPUT:
+  - README.md updated
+  - Summary of changes made
+```
+
+### README Update Triggers
+
+| File Pattern | README Section to Update |
+|--------------|------------------------|
+| `backend/src/routes/*` | API Endpoints |
+| `frontend/src/components/*` | Components |
+| `frontend/tests/e2e/*` | E2E Testing |
+| `backend/prisma/schema.prisma` | Database Schema |
+| `.env.example` | Environment Variables |
+
 ## Anti-Patterns
 
 - NEVER write specs without acceptance criteria
@@ -182,6 +216,7 @@ When reviewing requirements, identify:
 - NEVER skip error cases in API docs
 - NEVER leave open questions unresolved without tracking
 - NEVER create docs that contradict code
+- NEVER skip README update when triggered by change-reviewer
 
 ## Output Format
 

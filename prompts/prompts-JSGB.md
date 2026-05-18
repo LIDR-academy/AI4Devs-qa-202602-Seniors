@@ -483,3 +483,58 @@ Run these commands and verify:
 - typecheck: passes
 - lint: 6 warnings (no errors)
 - test: 4 suites passed, 4 tests passed
+
+---
+
+## Prompt 25: Add README update workflow and change-reviewer agent
+
+**Task:** Enhance harness-engineering with README auto-update on feature completion and create dedicated change-reviewer agent.
+
+**Prompt:**
+```
+1. Create a new agent ai-specs/agents/change-reviewer.md that:
+   - Acts as final validation gate before task completion
+   - Validates all quality gates (tsc, lint, test, e2e)
+   - Checks README updates when file changes match trigger patterns
+   - Verifies Linear ticket sync
+   - Can APPROVE or REJECT completion
+
+2. Update ai-specs/skills/harness-engineering/SKILL.md to include:
+   - Step 6: README Update Workflow (trigger conditions, flow, docs-agent protocol)
+   - Step 7: Change Reviewer Integration (agent role, integration with orchestrator)
+   - Update validation checklist to include new items
+
+3. Update ai-specs/agents/docs-agent.md to add:
+   - README Update Responsibility section
+   - Trigger conditions for README updates
+
+4. Update ai-specs/agents/orchestrator.md to add:
+   - change-reviewer to sub-agent list
+   - Update orchestration flow to include change-reviewer validation
+   - Update TDD enforcement steps
+```
+
+**Result:**
+- Created `ai-specs/agents/change-reviewer.md` with comprehensive review protocol
+- Updated `ai-specs/skills/harness-engineering/SKILL.md` with README workflow (Step 6) and change reviewer integration (Step 7)
+- Updated `ai-specs/agents/docs-agent.md` with README update triggers
+- Updated `ai-specs/agents/orchestrator.md` with change-reviewer coordination
+
+**README Update Triggers:**
+| File Pattern | README Section |
+|--------------|----------------|
+| `backend/src/routes/*` | API Endpoints |
+| `frontend/src/components/*` | Components |
+| `frontend/tests/e2e/*` | E2E Testing |
+| `backend/prisma/schema.prisma` | Database Schema |
+| `.env.example` | Environment Variables |
+
+**Change Reviewer Flow:**
+```
+Implementation Complete
+        ↓
+change-reviewer validates gates (tsc, lint, test, e2e)
+        ↓
+APPROVED: docs-agent updates README if needed → complete
+REJECTED: return to implementing agent with fixes
+```

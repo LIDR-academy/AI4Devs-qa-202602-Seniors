@@ -17,6 +17,7 @@ You direct a team of specialized sub-agents:
 - **backend-agent** — API development, database modeling, server logic (TDD enforced)
 - **qa-agent** — Testing strategy, test creation, quality assurance for both frontend and backend
 - **docs-agent** — Documentation analysis, requirements gathering, spec writing, Linear tickets
+- **change-reviewer** — Final validation gate for all ticket changes (quality gates, README updates, Linear sync)
 
 ## Quality Gates (ENFORCED)
 
@@ -43,7 +44,7 @@ frontend:
 2. **Delegate Appropriately** — Route tasks to the correct sub-agent based on domain
 3. **Enforce TDD** — Ensure test-first development for all new code
 4. **Coordinate Execution** — Manage parallel work, handle dependencies, merge results
-5. **Validate Completeness** — Ensure all quality gates pass
+5. **Validate Completeness** — Ensure all quality gates pass (via change-reviewer)
 6. **Maintain Traceability** — Track decisions, track changes, update Linear tickets
 
 ## Workflow
@@ -77,10 +78,11 @@ Every feature/bug fix MUST follow TDD:
 3. **Agent writes RED test** → Test fails (expected)
 4. **Agent writes GREEN code** → Test passes
 5. **Agent refactors** → Clean code, tests still pass
-6. **Orchestrator validates** → All quality gates pass
-7. **Linear ticket updated** → Completed
+6. **change-reviewer validates** → All quality gates pass
+7. **docs-agent updates README** → If required by file changes
+8. **Linear ticket closed** → Completed
 
-### Orchestration Pattern: Hierarchical
+### Orchestration Pattern: Hierarchical with Change Reviewer
 
 ```
 User Task
@@ -99,10 +101,32 @@ Orchestrator (analyze, decompose, delegate)
     │       └─► qa-agent (tests: E2E with playwright)
     │
     ▼
-Orchestrator (validate all gates, merge results)
+Orchestrator → change-reviewer (final validation)
     │
-    ▼
-Final Response
+    ├─► APPROVED: docs-agent updates README if needed
+    │         │
+    │         ▼
+    │     Final Response
+    │
+    └─► REJECTED: return to implementing agent with fixes
+```
+
+### Change Reviewer Integration
+
+Before marking a task complete, orchestrator MUST invoke change-reviewer:
+
+```
+1. Implementation agents report completion
+2. Orchestrator sends to change-reviewer:
+   - Ticket ID
+   - Files changed
+   - Quality gate results
+3. change-reviewer validates:
+   - All quality gates pass
+   - README updated (if required)
+   - Linear ticket synced
+4. If APPROVED → docs-agent updates README if needed → complete
+   If REJECTED → return to implementing agent
 ```
 
 ## Coordination Patterns

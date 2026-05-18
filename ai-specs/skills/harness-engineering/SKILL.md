@@ -368,7 +368,134 @@ When to return result to orchestrator.
 | UI components | 60%+ |
 | Utility functions | 70%+ |
 
-## Step 6: Linear Integration
+## Step 6: README Update Workflow
+
+### Trigger Conditions
+
+When these file patterns change, README update is REQUIRED:
+
+| File Pattern | README Section to Update |
+|--------------|--------------------------|
+| `backend/src/routes/*` | API Endpoints |
+| `frontend/src/components/*` | Components |
+| `frontend/tests/e2e/*` | E2E Testing |
+| `backend/prisma/schema.prisma` | Database Schema |
+| `.env.example` | Environment Variables |
+| `package.json` (scripts changed) | Commands |
+
+### README Update Flow
+
+```
+Implementation Complete
+        ↓
+Files changed match README trigger?
+        ↓
+YES → Trigger docs-agent to update README
+        ↓
+docs-agent updates README.md
+        ↓
+change-reviewer validates README updated
+        ↓
+Ticket can be marked complete
+```
+
+### docs-agent README Update Protocol
+
+```
+RECEIVE: README update trigger for {ticket_id}
+FILES CHANGED:
+  - {list of changed files}
+CONTEXT:
+  - {what was implemented}
+  - {why it matters for documentation}
+
+ACTIONS:
+1. READ current README.md
+2. IDENTIFY sections that need updates
+3. UPDATE relevant sections with accurate info
+4. VERIFY updates don't break links
+5. ADD changelog entry if applicable
+
+OUTPUT:
+  - README.md updated
+  - Summary of changes made
+```
+
+### README Update Quality Checklist
+
+- [ ] API changes reflected in documentation
+- [ ] New components documented
+- [ ] Setup instructions still accurate
+- [ ] No broken internal links
+- [ ] Examples still work
+- [ ] Changelog updated with new version
+
+## Step 7: Change Reviewer Integration
+
+### Agent Role
+
+**change-reviewer** acts as final validation gate for all ticket completions.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    CHANGE REVIEWER GATE                         │
+├─────────────────────────────────────────────────────────────────┤
+│ BEFORE: agent reports completion                                │
+│         ↓                                                        │
+│ VALIDATE: quality gates (tsc, lint, test, e2e)                   │
+│         ↓                                                        │
+│ VALIDATE: acceptance criteria met                                │
+│         ↓                                                        │
+│ VALIDATE: README updated (if required)                          │
+│         ↓                                                        │
+│ VALIDATE: Linear ticket synced                                  │
+│         ↓                                                        │
+│ OUTPUT: APPROVED → orchestrator                                 │
+│         REJECTED → back to implementing agent                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Integration with Orchestrator
+
+```
+User Task
+    │
+    ▼
+Orchestrator (analyze, decompose, delegate)
+    │
+    ├─► docs-agent (requirements, Linear ticket)
+    │
+    ├─► backend-agent OR frontend-agent (implement)
+    │
+    ├─► qa-agent (tests: unit + E2E)
+    │
+    ▼
+Orchestrator → change-reviewer (final validation)
+    │
+    ├─► APPROVED: docs-agent updates README if needed → complete
+    │
+    └─► REJECTED: return to implementing agent with fixes
+```
+
+### Quality Gate Commands (Reference)
+
+```bash
+# Backend quality gates
+cd backend && pnpm tsc --noEmit          # TypeScript type check
+cd backend && pnpm lint                  # ESLint + Prettier
+cd backend && pnpm test                  # Jest unit tests (≥70%)
+
+# Frontend quality gates
+cd frontend && pnpm tsc --noEmit         # TypeScript type check
+cd frontend && pnpm lint                  # ESLint
+cd frontend && pnpm test                  # Jest tests (≥60%)
+cd frontend && pnpm test:e2e              # Playwright E2E tests
+
+# E2E (when playwright configured)
+pnpm test:e2e                            # Playwright E2E tests
+```
+
+## Step 8: Linear Integration
 
 Every feature MUST have a Linear ticket:
 
@@ -391,21 +518,23 @@ Every feature MUST have a Linear ticket:
    })
 ```
 
-## Step 7: Verify & Iterate
+## Step 9: Verify & Iterate
 
 ### 7.1 Validation Checklist
 
 ```
 [ ] Graphify analysis complete
-[ ] Agent roles defined (min: 3)
-[ ] Communication pattern selected
-[ ] Memory strategy implemented
+[ ] Agent roles defined (orchestrator, frontend, backend, qa, docs, change-reviewer)
+[ ] Communication pattern selected (hierarchical)
+[ ] Memory strategy implemented (graphify + Linear)
 [ ] Tool suite defined per pattern
 [ ] Orchestration flow documented
 [ ] Config files generated
 [ ] Agent prompts written
 [ ] Quality gates enforced
 [ ] Linear integration configured
+[ ] README update workflow defined
+[ ] Change reviewer integrated into flow
 ```
 
 ### 7.2 Test Flow
