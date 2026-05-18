@@ -907,3 +907,56 @@ Run graphify update . to incorporate:
 **New Surprising Connections:**
 - handleSubmit() --calls--> createCandidate()
 - handleFileUpload() --calls--> uploadCvFile()
+
+---
+
+## Prompt 34: Fix CodeRabbit review comments
+
+**Task:** Apply all CodeRabbit review comments from PR #22.
+
+**Prompt:**
+```
+Fix the following CodeRabbit comments from PR #22:
+
+1. .gitignore: Change `.env` to `**/.env` for monorepo support
+2. playwright-e2e/SKILL.md: Replace npx with pnpm exec commands
+3. playwright-e2e/SKILL.md: Fix `playwright test --generate` to `playwright codegen`
+4. backend/eslint.config.js: Enable TypeScript ESLint recommended rules
+5. backend-agent.md: Unify coverage threshold (70% vs 80%)
+6. backend-agent.md: Update file-convention paths to application/domain
+7. candidateService.ts: Don't map all errors to NotFoundError in findCandidateById
+8. candidateService.ts: Don't replace unknown errors with generic Error
+9. candidateController.ts: Return 500 instead of 400 for non-domain errors
+10. candidateService.test.ts: Mock Application.findOneByPositionCandidateId
+11. candidateController.test.ts: Update test expectation from 400 to 500
+12. docs/tickets/NOV-14.md: Fix endpoint naming singular to plural
+13. docs/tickets/NOV-14.md: Fix async Promise.all pattern for request interception
+14. docs/tickets/README.md: Fix invalid Linear MCP commands
+15. frontend/package.json: Add ESLint dependencies
+16. frontend/tests/e2e/position.spec.ts: Fix async test structure
+17. frontend/tests/e2e/position.spec.ts: Strengthen visual assertion
+```
+
+**Result:** All CodeRabbit comments addressed.
+
+**Changes made:**
+
+| File | Fix Applied |
+|------|-------------|
+| `.gitignore` | Changed `.env` to `**/.env` |
+| `ai-specs/skills/playwright-e2e/SKILL.md` | Replaced `npx` with `pnpm exec`; fixed `playwright codegen` |
+| `backend/eslint.config.js` | Added `...tseslint.configs.recommended.rules`, fixed unused-vars rule |
+| `ai-specs/agents/backend-agent.md` | Unified coverage to ≥70%; updated paths to `application/` and `domain/` |
+| `backend/src/application/services/candidateService.ts` | Removed try-catch that mapped all errors to NotFoundError; preserve original error |
+| `backend/src/presentation/controllers/candidateController.ts` | Changed fallback from 400 to 500 |
+| `backend/src/application/services/candidateService.test.ts` | Added Application mock with jest.spyOn |
+| `backend/src/presentation/controllers/candidateController.test.ts` | Updated test expectation from 400 to 500 |
+| `docs/tickets/NOV-14.md` | Fixed endpoint to plural; fixed async pattern; strengthened assertion |
+| `docs/tickets/README.md` | Replaced invalid Linear MCP commands with GraphQL API guidance |
+| `frontend/package.json` | Added ESLint dependencies |
+| `frontend/eslint.config.js` | Created new ESLint flat config for frontend |
+| `frontend/tests/e2e/position.spec.ts` | Fixed Promise.all pattern; strengthened card ID assertion |
+
+**Quality Gates:**
+- `pnpm tsc --noEmit`: ✅ Pass (0 errors) for both backend and frontend
+- `pnpm test`: ✅ 15/15 tests pass

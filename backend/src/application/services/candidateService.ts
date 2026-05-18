@@ -26,12 +26,7 @@ export class CandidateService {
   }
 
   async findCandidateById(id: number): Promise<Candidate | null> {
-    try {
-      const candidate = await this.repository.findOne(id);
-      return candidate;
-    } catch (error) {
-      throw new NotFoundError('Error retrieving candidate');
-    }
+    return this.repository.findOne(id);
   }
 
   async updateCandidateStage(id: number, applicationIdNumber: number, currentInterviewStep: number): Promise<Application> {
@@ -50,7 +45,7 @@ export class CandidateService {
       if (error instanceof NotFoundError) {
         throw error;
       }
-      throw new Error('Error updating candidate stage');
+      throw error;
     }
   }
 }

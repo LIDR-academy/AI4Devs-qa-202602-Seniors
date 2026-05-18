@@ -1,6 +1,7 @@
 import { CandidateService } from './candidateService';
 import { ValidationError, DuplicateEmailError, NotFoundError } from '../errors/AppError';
 import { CandidateRepository } from '../repositories/CandidateRepository';
+import { Application } from '../../domain/models/Application';
 
 describe('CandidateService', () => {
   let mockRepository: jest.Mocked<CandidateRepository>;
@@ -113,6 +114,7 @@ describe('CandidateService', () => {
 
   describe('updateCandidateStage', () => {
     it('should throw NotFoundError when application not found', async () => {
+      jest.spyOn(Application, 'findOneByPositionCandidateId').mockResolvedValue(null as any);
       const service = new CandidateService(mockRepository);
       await expect(service.updateCandidateStage(1, 999, 2)).rejects.toThrow(NotFoundError);
     });

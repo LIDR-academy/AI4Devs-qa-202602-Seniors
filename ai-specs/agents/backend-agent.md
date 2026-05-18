@@ -136,9 +136,9 @@ Always return:
 | Type | Location |
 |------|----------|
 | Routes/Controllers | `backend/src/routes/` |
-| Services | `backend/src/services/` |
-| Models/Schemas | `backend/src/models/` |
-| Repositories | `backend/src/repositories/` |
+| Application Services | `backend/src/application/services/` |
+| Domain Models | `backend/src/domain/models/` |
+| Repositories | `backend/src/application/repositories/` |
 | Middleware | `backend/src/middleware/` |
 | Tests (TDD) | `backend/src/**/*.test.ts` |
 | Migrations | `backend/prisma/migrations/` |
@@ -159,7 +159,7 @@ Always return:
 - [ ] Input validation on all endpoints
 - [ ] Authentication on protected routes
 - [ ] Authorization checks per resource
-- [ ] Unit tests for business logic (≥80% coverage)
+- [ ] Unit tests for business logic (≥70% coverage)
 - [ ] Integration tests for API endpoints
 - [ ] Error responses follow consistent format
 - [ ] No sensitive data in logs/errors

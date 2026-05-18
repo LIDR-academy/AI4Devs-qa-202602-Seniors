@@ -114,7 +114,7 @@ describe('updateCandidateStageController', () => {
     });
   });
 
-  it('should return 400 for generic error', async () => {
+  it('should return 500 for generic error', async () => {
     mockService.updateCandidateStage.mockRejectedValue(new Error('Generic error'));
 
     mockReq = {
@@ -124,7 +124,7 @@ describe('updateCandidateStageController', () => {
 
     await updateCandidateStageController(mockReq as Request, mockRes as Response);
 
-    expect(statusMock).toHaveBeenCalledWith(400);
+    expect(statusMock).toHaveBeenCalledWith(500);
     expect(jsonMock).toHaveBeenCalledWith({
       message: 'Error updating candidate stage',
       error: 'Generic error',

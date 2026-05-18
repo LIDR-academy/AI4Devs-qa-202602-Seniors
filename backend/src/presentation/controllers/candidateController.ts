@@ -84,7 +84,7 @@ export const updateCandidateStageController = async (req: Request, res: Response
     if (error instanceof NotFoundError) {
       res.status(404).json({ message: 'Application not found', error: error.message });
     } else {
-      res.status(400).json({ message: 'Error updating candidate stage', error: error instanceof Error ? error.message : 'Unknown error' });
+      res.status(500).json({ message: 'Error updating candidate stage', error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 };

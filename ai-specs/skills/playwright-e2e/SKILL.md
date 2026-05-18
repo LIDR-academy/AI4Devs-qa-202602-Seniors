@@ -24,13 +24,13 @@ prerequisites:
 ```bash
 # Install Playwright
 pnpm add -D @playwright/test
-npx playwright install
+pnpm exec playwright install --with-deps
 
 # Run E2E tests
 pnpm test:e2e
 
 # Open Playwright UI
-npx playwright test --ui
+pnpm exec playwright test --ui
 ```
 
 ## Project Configuration
@@ -218,8 +218,8 @@ pnpm test:e2e --headed
 # Debug with Playwright inspector
 pnpm test:e2e --debug
 
-# Generate test
-pnpm playwright test --generate
+# Generate test (codegen)
+pnpm exec playwright codegen http://localhost:3000
 
 # Show report
 pnpm playwright show-report
@@ -312,12 +312,12 @@ pnpm test:e2e
 
 | Command | Description |
 |---------|-------------|
-| `npx playwright install` | Install browsers |
+| `pnpm exec playwright install` | Install browsers |
 | `pnpm test:e2e` | Run E2E tests |
 | `pnpm test:e2e --ui` | Run with UI |
 | `pnpm test:e2e --headed` | Run in headed mode |
 | `pnpm playwright show-report` | Show HTML report |
-| `npx playwright test --grep "@smoke"` | Run tagged tests |
+| `pnpm exec playwright test --grep "@smoke"` | Run tagged tests |
 
 ## References
 

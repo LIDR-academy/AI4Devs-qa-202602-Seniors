@@ -10,15 +10,21 @@ Each ticket is saved as a markdown file with frontmatter for metadata.
 ## Sync Mechanism
 
 ### Manual Sync
-```bash
-# Sync all tickets from a Linear team
-npx @lucitra/linear-mcp sync tickets --output ./docs/tickets
 
-# Or use the Linear CLI directly
-linear ticket sync --output ./docs/tickets
+Ticket synchronization must be implemented using Linear's GraphQL API or webhooks. For MCP integration, use the official `linear-mcp` package:
+
+```bash
+# Install linear-mcp (if using MCP-compatible tools)
+npx linear-mcp sync tickets --output ./docs/tickets
+
+# Or use the Linear GraphQL API directly
+# See: https://api.linear.app/graphql
 ```
 
 ### Automated Sync (GitHub Actions example)
+
+For automated synchronization, use a custom script that calls the Linear GraphQL API:
+
 ```yaml
 # .github/workflows/linear-sync.yml
 name: Sync Linear Tickets
@@ -34,7 +40,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Sync Linear Tickets
         run: |
-          npx @lucitra/linear-mcp sync tickets --output ./docs/tickets
+          # Use Linear GraphQL API to fetch and save tickets
+          # Example: create a script that queries issues and writes them to docs/tickets/
+          echo "Implement ticket sync using Linear GraphQL API"
         env:
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
       - name: Commit changes

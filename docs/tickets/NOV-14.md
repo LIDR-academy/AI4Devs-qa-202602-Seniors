@@ -37,7 +37,7 @@ Aplicar pruebas End-to-End (E2E) usando Playwright para validar la interfaz posi
 ### Escenario 2: Cambio de fase de candidato
 
 - Arrastrar tarjeta a nueva columna
-- Validar PUT /candidate/:id
+- Validar PUT /candidates/:id
 - Verificar body contiene nueva fase
 
 ## Entrega
@@ -140,17 +140,15 @@ test.describe('Position Interface - Kanban Board', () => {
 
   // Escenario 2: Cambio de fase de candidato (drag and drop)
   test('should fire PUT /candidates/:id with new phase on drag-and-drop', async ({ page }) => {
-    const [apiRequest] = await Promise.all([
-      page.waitForResponse(resp => resp.url().includes('/candidates/') && resp.request().method() === 'PUT'),
-    ]);
-
     const candidateCard = page.locator('[data-testid^="candidate-card-"]').first();
     await candidateCard.waitFor({ state: 'visible' });
 
-    const destColumn = page.locator('[data-testid="phase-column-entrevista"]');
-    await candidateCard.dragTo(destColumn);
+    const destColumn = page.locator('[data-testid="phase-column-technical-interview"]');
+    const [response] = await Promise.all([
+      page.waitForResponse(resp => resp.url().includes('/candidates/') && resp.request().method() === 'PUT'),
+      candidateCard.dragTo(destColumn),
+    ]);
 
-    const response = await apiRequest;
     expect(response.status()).toBe(200);
 
     const body = await response.request().postDataJSON();
@@ -159,11 +157,12 @@ test.describe('Position Interface - Kanban Board', () => {
 
   test('should visually move candidate card to new column after drag', async ({ page }) => {
     const candidateCard = page.locator('[data-testid^="candidate-card-"]').first();
-    const destColumn = page.locator('[data-testid="phase-column-prueba-técnica"]');
+    const candidateId = await candidateCard.getAttribute('data-testid');
+    const destColumn = page.locator('[data-testid="phase-column-manager-interview"]');
 
     await candidateCard.dragTo(destColumn);
 
-    await expect(destColumn.locator('[data-testid^="candidate-card-"]')).toBeVisible();
+    await expect(destColumn.locator(`[data-testid="${candidateId}"]`)).toBeVisible();
   });
 });
 ```

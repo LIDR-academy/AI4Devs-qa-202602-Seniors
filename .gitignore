@@ -26,7 +26,7 @@ yarn-error.log*
 .vscode
 
 # Environment variables
-.env
+**/.env
 
 # Graphify
 graphify-out
