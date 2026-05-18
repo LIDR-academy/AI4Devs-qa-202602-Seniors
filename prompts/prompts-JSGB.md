@@ -632,3 +632,39 @@ Run graphify update . to incorporate:
 ```
 
 **Result:** Graph updated with 127 nodes, 103 edges, 39 communities (CONTEXT.md now part of knowledge graph).
+
+---
+
+## Prompt 28: Fix E2E test phase names to match actual API
+
+**Task:** Fix hardcoded Spanish phase names in E2E test to match actual backend API phase names.
+
+**Prompt:**
+```
+The E2E test file /frontend/tests/e2e/position.spec.ts has WRONG phase names.
+
+The test hardcodes Spanish phase names that don't match the actual backend API:
+- Test expects: 'Aplicado', 'Entrevista', 'Prueba Técnica', 'Oferta', 'Contratado', 'Rechazado'
+- Actual API returns: 'Initial Screening', 'Technical Interview', 'Manager Interview'
+
+Fix the test file to use the CORRECT phase names:
+
+Line 19 should be:
+const phases = ['Initial Screening', 'Technical Interview', 'Manager Interview'];
+
+Line 40 should be:
+const destColumn = page.locator('[data-testid="phase-column-technical-interview"]');
+
+Line 52 should be:
+const destColumn = page.locator('[data-testid="phase-column-manager-interview"]');
+```
+
+**Result:** Fixed phase names in `position.spec.ts`:
+
+| Line | Before (Wrong) | After (Correct) |
+|------|----------------|-----------------|
+| 19 | `['Aplicado', 'Entrevista', 'Prueba Técnica', 'Oferta', 'Contratado', 'Rechazado']` | `['Initial Screening', 'Technical Interview', 'Manager Interview']` |
+| 40 | `phase-column-entrevista` | `phase-column-technical-interview` |
+| 52 | `phase-column-prueba-técnica` | `phase-column-manager-interview` |
+
+**Verification:** `pnpm tsc --noEmit` passed with no errors.
