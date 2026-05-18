@@ -3,9 +3,20 @@ import { addCandidate, getCandidateById, updateCandidateStageController } from '
 
 const router = Router();
 
+router.get('/', async (req, res) => {
+  try {
+    res.status(200).json({ message: 'Candidate routes working' });
+  } catch (error) {
+    res.status(500).send({ message: "An unexpected error occurred" });
+  }
+});
+
+router.get('/:id', getCandidateById);
+
+router.put('/:id', updateCandidateStageController);
+
 router.post('/', async (req, res) => {
   try {
-    // console.log(req.body); //Just in case you want to inspect the request body
     const result = await addCandidate(req.body);
     res.status(201).send(result);
   } catch (error) {
@@ -16,9 +27,5 @@ router.post('/', async (req, res) => {
     }
   }
 });
-
-router.get('/:id', getCandidateById);
-
-router.put('/:id', updateCandidateStageController);
 
 export default router;

@@ -29,7 +29,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest --config jest.config.js",
-    "eject": "react-scripts eject"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "eject": "react-scripts eject",
+    "quality": "pnpm typecheck && pnpm lint && pnpm test"
   },
   "eslintConfig": {
     "extends": [
