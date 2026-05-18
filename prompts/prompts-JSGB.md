@@ -718,3 +718,69 @@ Use subagents as needed (qa-agent for tests, change-reviewer for validation).
 - `pnpm lint`: ✅ Pass (0 errors, 12 warnings)
 - `pnpm test`: ✅ Pass (15/15 tests)
 - Linear tickets: ✅ All 7 marked as Done
+
+---
+
+## Prompt 30: Enforce orchestrator sub-agent delegation
+
+**Task:** Update orchestrator and sub-agents to enforce automatic delegation instead of direct implementation.
+
+**Prompt:**
+```
+Use the harness-engineering skill to analyze the system and make the required changes to enforce the usage of sub-agents when the user asks to implement a ticket.
+
+The problem: When user says "implement a ticket", the Orchestrator sometimes tried to implement directly instead of delegating to sub-agents.
+
+Changes required:
+1. Update orchestrator.md with:
+   - task permissions restricting delegation to only allowed sub-agents
+   - Trigger keywords in description for auto-routing
+   - FORBIDDEN section: "IF YOU RECEIVE A TASK AND DO NOT DELEGATE, YOU HAVE FAILED"
+   - Task Routing Table mapping user request patterns to sub-agents
+
+2. Update sub-agent descriptions with trigger keywords for auto-routing:
+   - qa-agent: "test", "coverage", "e2e", "playwright", "unit test"
+   - docs-agent: "documentation", "spec", "ticket", "linear", "readme"
+
+3. Update harness-engineering/SKILL.md to document the Enforced Delegation Pattern
+```
+
+**Result:** Multi-agent delegation now enforced.
+
+**Changes made:**
+
+| File | Change |
+|------|--------|
+| `ai-specs/agents/orchestrator.md` | Added task permissions, trigger keywords, FORBIDDEN section, Task Routing Table |
+| `ai-specs/agents/qa-agent.md` | Added trigger keywords: "test", "coverage", "e2e", "playwright" |
+| `ai-specs/agents/docs-agent.md` | Added trigger keywords: "documentation", "spec", "ticket", "linear" |
+| `ai-specs/skills/harness-engineering/SKILL.md` | Updated to v1.3.0, added Enforced Delegation Pattern section |
+
+**Orchestrator task permissions:**
+```yaml
+permission:
+  task:
+    "backend-agent": "allow"
+    "frontend-agent": "allow"
+    "qa-agent": "allow"
+    "docs-agent": "allow"
+    "change-reviewer": "allow"
+    "*": "deny"
+```
+
+**Task Routing Table:**
+| User Request | Delegate To |
+|--------------|-------------|
+| "implement / add / create / build" + API/DB/service | backend-agent |
+| "implement / add / create / build" + UI/component | frontend-agent |
+| "fix bug" + backend logic | backend-agent |
+| "fix bug" + UI rendering | frontend-agent |
+| "write tests / test coverage" | qa-agent |
+| "documentation / spec / ticket" | docs-agent |
+| "e2e / playwright / integration" | qa-agent + playwright-e2e |
+| "validate / review / check quality" | change-reviewer |
+
+**Verification:**
+- `.opencode/agents/` → `ai-specs/agents` symlink confirmed
+- `.opencode/skills/` → `ai-specs/skills` symlink confirmed
+- All agent configs properly linked

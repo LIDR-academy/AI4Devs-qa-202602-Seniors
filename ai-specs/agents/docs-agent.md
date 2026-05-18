@@ -1,5 +1,5 @@
 ---
-description: Documentation specialist — analyzes requirements, creates specifications, maintains API contracts, ensures Linear tickets are created via MCP, and syncs them to docs/tickets/.
+description: Documentation specialist — analyzes requirements, creates specifications, maintains API contracts, ensures Linear tickets are created via MCP, and syncs them to docs/tickets/. Triggers: "documentation", "spec", "ticket", "linear", "readme", "docs"
 mode: subagent
 permission:
   edit: allow

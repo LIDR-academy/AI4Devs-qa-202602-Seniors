@@ -2,7 +2,7 @@
 name: harness-engineering
 description: Build optimized agentic systems tailored to a specific project by analyzing its structure, patterns, and domain. Use when designing multi-agent architectures, setting up planning/memory systems, or implementing project-specific AI workflows. Trigger: /harness
 author: AI4Devs
-version: 1.2.0
+version: 1.3.0
 ---
 
 # Harness Engineering
@@ -676,6 +676,65 @@ Every feature MUST have a Linear ticket:
 8. Synthesis agent combines output
 9. Return final result
 ```
+
+## Enforced Delegation Pattern
+
+**CRITICAL: Orchestrator agent MUST delegate, never implement directly.**
+
+### The Problem
+
+When users asked the Orchestrator to "implement a ticket", it sometimes tried to implement directly instead of delegating to sub-agents. This violates the multi-agent architecture.
+
+### The Solution
+
+Updated orchestrator.md with:
+1. **Explicit task permission restrictions** — only allowed to invoke specific sub-agents
+2. **Trigger keywords in description** — "implement", "build", "fix", "add", "create feature"
+3. **FORBIDDEN patterns** — Anti-patterns section explicitly states "IF YOU RECEIVE A TASK AND DO NOT DELEGATE, YOU HAVE FAILED"
+4. **Task Routing Table** — clear mapping of user request patterns to sub-agents
+
+### OpenCode Configuration
+
+The orchestrator agent uses `task` permissions to control delegation:
+
+```json
+{
+  "agent": {
+    "orchestrator": {
+      "mode": "primary",
+      "permission": {
+        "task": {
+          "backend-agent": "allow",
+          "frontend-agent": "allow",
+          "qa-agent": "allow",
+          "docs-agent": "allow",
+          "change-reviewer": "allow",
+          "*": "deny"
+        }
+      }
+    }
+  }
+}
+```
+
+### Sub-agent Auto-routing
+
+Each sub-agent now has trigger keywords in its description for auto-routing:
+
+| Agent | Trigger Keywords |
+|-------|------------------|
+| backend-agent | "backend", "api", "database", "service", "server" |
+| frontend-agent | "frontend", "ui", "component", "react", "button", "form" |
+| qa-agent | "test", "coverage", "e2e", "playwright", "unit test" |
+| docs-agent | "documentation", "spec", "ticket", "linear", "readme" |
+| change-reviewer | "review", "validate", "check quality" |
+
+### Verification
+
+After any configuration change:
+1. Verify symbolic links exist: `ls -la .opencode/agents/`
+2. Verify symbolic links exist: `ls -la .opencode/skills/`
+3. Test delegation by asking to "implement a simple feature"
 
 ## Quick Start Template
 

@@ -1,5 +1,5 @@
 ---
-description: Quality assurance specialist — creates and executes tests for both frontend and backend. Covers unit tests, integration tests, E2E tests, and contract testing.
+description: Quality assurance specialist — creates and executes tests for both frontend and backend. Covers unit tests, integration tests, E2E tests, and contract testing. Triggers: "test", "coverage", "e2e", "playwright", "unit test", "integration test", "testing"
 mode: subagent
 permission:
   edit: allow
