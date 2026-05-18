@@ -1,12 +1,10 @@
-import { updateCandidateStageController, setCandidateService } from './candidateController';
+import { updateCandidateStageController, setApplicationProgressionService } from './candidateController';
 import { Request, Response } from 'express';
 import { NotFoundError } from '../../application/errors/AppError';
 
 // Mock service factory to ensure clean state per test
 const createMockService = () => ({
   updateCandidateStage: jest.fn(),
-  addCandidate: jest.fn(),
-  findCandidateById: jest.fn(),
 });
 
 describe('updateCandidateStageController', () => {
@@ -27,8 +25,8 @@ describe('updateCandidateStageController', () => {
     // Create fresh mock service for each test
     mockService = createMockService();
 
-    // Inject mock service using setCandidateService
-    setCandidateService(mockService as any);
+    // Inject mock service using setApplicationProgressionService
+    setApplicationProgressionService(mockService as any);
   });
 
   afterEach(() => {
@@ -38,7 +36,7 @@ describe('updateCandidateStageController', () => {
   it('should return 200 on successful stage update', async () => {
     mockService.updateCandidateStage.mockResolvedValue({
       id: 1,
-      applicationId: 1,
+      positionId: 1,
       candidateId: 1,
       currentInterviewStep: 2,
     });

@@ -784,3 +784,126 @@ permission:
 - `.opencode/agents/` → `ai-specs/agents` symlink confirmed
 - `.opencode/skills/` → `ai-specs/skills` symlink confirmed
 - All agent configs properly linked
+
+---
+
+## Prompt 31: Implement backend architecture refactor tickets (NOV-22, NOV-23, NOV-24, NOV-25, NOV-26)
+
+**Task:** Implement 5 backend tickets for Ports & Adapters architecture refactor.
+
+**Prompt:**
+```
+Implement these Linear tickets from the AI4Devs project:
+
+1. NOV-22: Deepen Candidate intake module — Ports & Adapters refactor
+   - Make Candidate a pure data object (no save(), no static findOne())
+   - Move updateCandidateStage to new ApplicationProgressionService
+   - Fix validation bug (data.id skip was wrong for updates)
+   - Make individual validators private (only validateCandidateData exported)
+
+2. NOV-23: Investigate Position queries seam — deepen or merge
+   - Decision: Option B (Deepen) - add in-memory cache with 30s TTL
+   - Created PositionService class with getAllPositions, getCandidatesByPosition, getInterviewFlowByPosition
+   - Marked existing functions as @deprecated
+
+3. NOV-24: Candidate domain model — eliminate duplicate query knowledge
+   - Candidate.ts now only has constructor + fields
+   - Query shape lives only in PrismaCandidateRepository.findOne()
+
+4. NOV-25: Validator module — reduce public surface
+   - Only validateCandidateData is exported
+   - All individual validators are private
+
+5. NOV-26: Application domain model — move database queries to repository
+   - Application.ts is now a pure data object
+   - Created ApplicationRepository interface and PrismaApplicationRepository
+   - Created ApplicationProgressionService
+```
+
+**Result:** All 5 backend tickets implemented and marked as Done.
+
+**Changes made:**
+
+| Ticket | Title | Files Created/Modified |
+|--------|-------|------------------------|
+| NOV-22 | Deepen Candidate intake module | `Candidate.ts` (pure data), `ApplicationProgressionService.ts` (new), `validator.ts` (private validators) |
+| NOV-23 | Investigate Position queries seam | `positionService.ts` (cache + class), `positionController.ts` (uses PositionService) |
+| NOV-24 | Candidate domain model — eliminate duplicate | `Candidate.ts` (removed findOne/save) |
+| NOV-25 | Validator module — reduce public surface | `validator.ts` (only validateCandidateData exported) |
+| NOV-26 | Application domain model — move queries to repository | `ApplicationRepository.ts` (new interface), `PrismaApplicationRepository.ts` (new), `Application.ts` (pure data) |
+
+**Quality Gates:**
+- `pnpm tsc --noEmit`: ✅ 0 errors
+- `pnpm lint`: ✅ 0 errors (18 warnings)
+- `pnpm test`: ✅ 15/15 tests pass
+- Linear tickets: ✅ All 5 marked as Done
+
+---
+
+## Prompt 32: Implement frontend API consolidation tickets (NOV-11, NOV-12, NOV-13)
+
+**Task:** Implement 3 frontend tickets for consolidating candidate API calls.
+
+**Prompt:**
+```
+Implement these Linear tickets from the AI4Devs project:
+
+1. NOV-11: CV upload via candidateApi (FileUploader)
+   - Create frontend/src/services/candidateApi.ts with uploadCvFile(file: File)
+   - Migrate FileUploader.js to use candidateApi
+   - Add onUploadError callback for error display
+
+2. NOV-12: Candidate creation via candidateApi (AddCandidateForm)
+   - Extend candidateApi.ts with createCandidate(payload)
+   - Migrate AddCandidateForm.js handleSubmit to use createCandidate
+   - Spanish-first error messages
+
+3. NOV-13: Remove duplicate axios candidateService
+   - Verify no imports: grep -r "candidateService" frontend/src/
+   - Delete frontend/src/services/candidateService.js
+   - Remove axios if not used elsewhere
+```
+
+**Result:** All 3 frontend tickets implemented and marked as Done.
+
+**Changes made:**
+
+| Ticket | Title | Files Created/Modified |
+|--------|-------|------------------------|
+| NOV-11 | CV upload via candidateApi | Created `candidateApi.ts`, Migrated `FileUploader.tsx` |
+| NOV-12 | Candidate creation via candidateApi | Extended `candidateApi.ts`, Migrated `AddCandidateForm.tsx` |
+| NOV-13 | Remove duplicate axios candidateService | Deleted `candidateService.js` |
+
+**Quality Gates:**
+- `pnpm run typecheck`: ✅ 0 errors
+- `pnpm lint`: ✅ 0 errors
+- `CI=true pnpm test`: ✅ Passed
+
+---
+
+## Prompt 33: Update graphify knowledge graph
+
+**Task:** Update the knowledge graph after implementing all tickets.
+
+**Prompt:**
+```
+Run graphify update . to incorporate:
+- New ApplicationProgressionService
+- New PrismaApplicationRepository
+- New candidateApi.ts service
+- Updated Candidate.ts, Application.ts (pure data objects)
+- Updated PositionService with caching
+```
+
+**Result:** Graph updated with 182 nodes, 160 edges, 23 communities.
+
+**New God Nodes:**
+- validateCandidateData() - 9 edges
+- Application - 5 edges
+- Position - 5 edges
+- CandidateService - 5 edges
+- PositionService - 5 edges (new with caching)
+
+**New Surprising Connections:**
+- handleSubmit() --calls--> createCandidate()
+- handleFileUpload() --calls--> uploadCvFile()

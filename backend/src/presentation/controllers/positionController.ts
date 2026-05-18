@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { getCandidatesByPositionService, getInterviewFlowByPositionService, getAllPositionsService } from '../../application/services/positionService';
+import { PositionService } from '../../application/services/positionService';
 
+const positionService = new PositionService();
 
 export const getAllPositions = async (req: Request, res: Response) => {
     try {
-        const positions = await getAllPositionsService();
+        const positions = await positionService.getAllPositions();
         res.status(200).json(positions);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving positions', error: error instanceof Error ? error.message : String(error) });
@@ -14,7 +15,7 @@ export const getAllPositions = async (req: Request, res: Response) => {
 export const getCandidatesByPosition = async (req: Request, res: Response) => {
     try {
         const positionId = parseInt(req.params.id);
-        const candidates = await getCandidatesByPositionService(positionId);
+        const candidates = await positionService.getCandidatesByPosition(positionId);
         res.status(200).json(candidates);
     } catch (error) {
         if (error instanceof Error) {
@@ -28,7 +29,7 @@ export const getCandidatesByPosition = async (req: Request, res: Response) => {
 export const getInterviewFlowByPosition = async (req: Request, res: Response) => {
     try {
         const positionId = parseInt(req.params.id);
-        const interviewFlow = await getInterviewFlowByPositionService(positionId);
+        const interviewFlow = await positionService.getInterviewFlowByPosition(positionId);
         res.status(200).json({ interviewFlow });
     } catch (error) {
         if (error instanceof Error) {

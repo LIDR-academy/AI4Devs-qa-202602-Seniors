@@ -1,6 +1,6 @@
 import { getCandidatesByPosition } from './positionController';
 import { Request, Response } from 'express';
-import { getCandidatesByPositionService } from '../../application/services/positionService';
+import { PositionService } from '../../application/services/positionService';
 
 jest.mock('../../application/services/positionService');
 
@@ -12,7 +12,7 @@ describe('getCandidatesByPosition', () => {
       json: jest.fn(),
     } as unknown as Response;
 
-    (getCandidatesByPositionService as jest.Mock).mockResolvedValue([
+    (PositionService.prototype.getCandidatesByPosition as jest.Mock).mockResolvedValue([
       { fullName: 'John Doe', currentInterviewStep: 'Technical Interview', averageScore: 4 },
     ]);
 
