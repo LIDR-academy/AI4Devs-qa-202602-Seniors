@@ -2,7 +2,24 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+async function clearDatabase() {
+  await prisma.interview.deleteMany();
+  await prisma.application.deleteMany();
+  await prisma.interviewStep.deleteMany();
+  await prisma.resume.deleteMany();
+  await prisma.workExperience.deleteMany();
+  await prisma.education.deleteMany();
+  await prisma.employee.deleteMany();
+  await prisma.position.deleteMany();
+  await prisma.candidate.deleteMany();
+  await prisma.interviewType.deleteMany();
+  await prisma.interviewFlow.deleteMany();
+  await prisma.company.deleteMany();
+}
+
 async function main() {
+  await clearDatabase();
+
   // Create Companies
   const company1 = await prisma.company.create({
     data: {
