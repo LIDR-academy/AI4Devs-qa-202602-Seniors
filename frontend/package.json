@@ -29,7 +29,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest --config jest.config.js",
-    "eject": "react-scripts eject"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "eject": "react-scripts eject",
+    "quality": "pnpm typecheck && pnpm lint && pnpm test"
   },
   "eslintConfig": {
     "extends": [
@@ -48,5 +51,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "eslint": "^9.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "ts-jest": "^29.4.9"
   }
 }

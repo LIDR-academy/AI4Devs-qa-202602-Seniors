@@ -1,85 +1,51 @@
 import { Candidate } from '../../domain/models/Candidate';
 import { validateCandidateData } from '../validator';
-import { Education } from '../../domain/models/Education';
-import { WorkExperience } from '../../domain/models/WorkExperience';
-import { Resume } from '../../domain/models/Resume';
+import { CandidateRepository } from '../repositories/CandidateRepository';
+import { ValidationError, DuplicateEmailError, NotFoundError } from '../errors/AppError';
 import { Application } from '../../domain/models/Application';
 
-export const addCandidate = async (candidateData: any) => {
+export class CandidateService {
+  constructor(private repository: CandidateRepository) {}
+
+  async addCandidate(candidateData: any): Promise<Candidate> {
     try {
-        validateCandidateData(candidateData); // Validar los datos del candidato
+      validateCandidateData(candidateData);
     } catch (error: any) {
-        throw new Error(error);
+      throw new ValidationError(error.message);
     }
 
-    const candidate = new Candidate(candidateData); // Crear una instancia del modelo Candidate
     try {
-        const savedCandidate = await candidate.save(); // Guardar el candidato en la base de datos
-        const candidateId = savedCandidate.id; // Obtener el ID del candidato guardado
-
-        // Guardar la educación del candidato
-        if (candidateData.educations) {
-            for (const education of candidateData.educations) {
-                const educationModel = new Education(education);
-                educationModel.candidateId = candidateId;
-                await educationModel.save();
-                candidate.educations.push(educationModel);
-            }
-        }
-
-        // Guardar la experiencia laboral del candidato
-        if (candidateData.workExperiences) {
-            for (const experience of candidateData.workExperiences) {
-                const experienceModel = new WorkExperience(experience);
-                experienceModel.candidateId = candidateId;
-                await experienceModel.save();
-                candidate.workExperiences.push(experienceModel);
-            }
-        }
-
-        // Guardar los archivos de CV
-        if (candidateData.cv && Object.keys(candidateData.cv).length > 0) {
-            const resumeModel = new Resume(candidateData.cv);
-            resumeModel.candidateId = candidateId;
-            await resumeModel.save();
-            candidate.resumes.push(resumeModel);
-        }
-        return savedCandidate;
-    } catch (error: any) {
-        if (error.code === 'P2002') {
-            // Unique constraint failed on the fields: (`email`)
-            throw new Error('The email already exists in the database');
-        } else {
-            throw error;
-        }
-    }
-};
-
-export const findCandidateById = async (id: number): Promise<Candidate | null> => {
-    try {
-        const candidate = await Candidate.findOne(id); // Cambio aquí: pasar directamente el id
-        return candidate;
+      const savedCandidate = await this.repository.save(candidateData);
+      return savedCandidate;
     } catch (error) {
-        console.error('Error al buscar el candidato:', error);
-        throw new Error('Error al recuperar el candidato');
+      if (error instanceof DuplicateEmailError) {
+        throw error;
+      }
+      throw error;
     }
-};
+  }
 
-export const updateCandidateStage = async (id: number, applicationIdNumber: number, currentInterviewStep: number) => {
+  async findCandidateById(id: number): Promise<Candidate | null> {
+    return this.repository.findOne(id);
+  }
+
+  async updateCandidateStage(id: number, applicationIdNumber: number, currentInterviewStep: number): Promise<Application> {
     try {
-        const application = await Application.findOneByPositionCandidateId(applicationIdNumber, id);
-        if (!application) {
-            throw new Error('Application not found');
-        }
+      const application = await Application.findOneByPositionCandidateId(applicationIdNumber, id);
+      if (!application) {
+        throw new NotFoundError('Application not found');
+      }
 
-        // Actualizar solo la etapa de la entrevista actual de la aplicación específica
-        application.currentInterviewStep = currentInterviewStep;
+      application.currentInterviewStep = currentInterviewStep;
 
-        // Guardar la aplicación actualizada
-        await application.save();
+      await application.save();
 
-        return application;
-    } catch (error: any) {
-        throw new Error(error);
+      return application;
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      throw error;
     }
-};
+  }
+}

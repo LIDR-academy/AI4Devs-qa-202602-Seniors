@@ -1,0 +1,962 @@
+# Prompts-JSGB
+
+This file documents all prompts used to implement the changes in this branch.
+
+---
+
+## Prompt 1: Update .gitignore
+
+**Task:** Update `.gitignore` to exclude environment variables and graphify output directory.
+
+**Prompt:**
+```
+Update the .gitignore file to:
+1. Uncomment and rename the environment variables line to just ".env"
+2. Add "graphify-out" to the ignored entries
+```
+
+**Result:** Updated `.gitignore` with:
+```
+# Environment variables
+.env
+
+# Graphify
+graphify-out
+```
+
+---
+
+## Prompt 2: Create ESLint flat config for TypeScript
+
+**Task:** Replace `.eslintrc.js` with the new ESLint flat config format.
+
+**Prompt:**
+```
+Replace the old ESLint configuration (backend/.eslintrc.js) with a new flat config format file (backend/eslint.config.js).
+
+The new config should:
+- Use eslint-config-prettier for formatting rules
+- Use @typescript-eslint/parser for TypeScript/JavaScript parsing
+- Apply to all **/*.ts and **/*.js files
+- Set ecmaVersion to 2022 and sourceType to 'module'
+- Set 'no-unused-vars' rule to 'warn'
+```
+
+**Result:** Created `backend/eslint.config.js` with TypeScript ESLint plugin and prettier integration.
+
+---
+
+## Prompt 3: Configure Jest for TypeScript testing
+
+**Task:** Update `backend/jest.config.js` to properly detect TypeScript test files.
+
+**Prompt:**
+```
+Update backend/jest.config.js to:
+1. Add testMatch configuration to find **/src/**/*.test.ts files
+2. Add roots configuration pointing to <rootDir>/src
+```
+
+**Result:** Updated jest config with testMatch and roots settings.
+
+---
+
+## Prompt 4: Add TypeScript ESLint dependencies
+
+**Task:** Add `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` to backend dependencies.
+
+**Prompt:**
+```
+Add the following dev dependencies to backend/package.json:
+- @typescript-eslint/eslint-plugin: ^8.59.3
+- @typescript-eslint/parser: ^8.59.3
+```
+
+**Result:** Dependencies added to package.json.
+
+---
+
+## Prompt 5: Fix test mock data
+
+**Task:** Add missing fields to test mock data in `positionService.test.ts`.
+
+**Prompt:**
+```
+In backend/src/application/services/positionService.test.ts, add the following fields to the mock candidate object at line 35:
+- candidateId: 1
+- applicationId: 1
+```
+
+**Result:** Mock data now includes candidateId and applicationId fields.
+
+---
+
+## Prompt 6: Reorganize candidate routes
+
+**Task:** Reorganize `backend/src/routes/candidateRoutes.ts` to have proper route ordering.
+
+**Prompt:**
+```
+In backend/src/routes/candidateRoutes.ts, reorganize the routes in this order:
+1. GET / (root route - health check) - should return { message: 'Candidate routes working' }
+2. GET /:id (getCandidateById)
+3. PUT /:id (updateCandidateStageController)
+4. POST / (addCandidate)
+
+Also remove the commented console.log line from the POST route.
+```
+
+**Result:** Routes reorganized with proper ordering and cleanup.
+
+---
+
+## Prompt 7: Clean up unused imports in AddCandidateForm
+
+**Task:** Remove unused InputGroup import from AddCandidateForm.js.
+
+**Prompt:**
+```
+In frontend/src/components/AddCandidateForm.js, remove the InputGroup import since it's not being used.
+```
+
+**Result:** Import cleaned up.
+
+---
+
+## Prompt 8: Clean up unused imports in PositionDetails
+
+**Task:** Remove unused imports from PositionDetails.js.
+
+**Prompt:**
+```
+In frontend/src/components/PositionDetails.js, remove the following unused imports:
+- Offcanvas from react-bootstrap
+```
+
+**Result:** Import cleaned up.
+
+---
+
+## Prompt 9: Create AGENTS.md guidelines file
+
+**Task:** Create the AGENTS.md file with project-wide agent guidelines.
+
+**Prompt:**
+```
+Create a new file called AGENTS.md in the project root with the following sections:
+
+1. MANDATORY section:
+   - Everything must be written in English
+   - Use pnpm as package manager
+   - Use context7 MCP or EXA MCP before working with external libraries
+   - Zero TypeScript or linter errors allowed
+
+2. Source of truth section:
+   - ai-specs is the source of truth
+   - When creating skills, agents, or subagents, create them in ai-specs directory
+   - Reference them from .opencode with symbolic links
+
+3. Four core guidelines:
+   - Think Before Coding: State assumptions, ask questions when uncertain
+   - Simplicity First: Minimum code, no speculative features
+   - Surgical Changes: Touch only what must be changed, match existing style
+   - Goal-Driven Execution: Define success criteria, loop until verified
+
+4. MANDATORY GATE: graphify section:
+   - This project uses graphify knowledge graph at graphify-out/
+   - Must use graphify for any project structure or architecture questions
+   - After code modifications, run "graphify update ." to keep graph current
+
+5. context7 MCP section:
+   - Use Context7 MCP to fetch documentation for libraries/frameworks
+   - Steps: resolve-library-id, pick best match, query-docs, answer
+```
+
+**Result:** Created AGENTS.md with comprehensive project guidelines.
+
+---
+
+## Prompt 10: Create NOV-14 ticket documentation
+
+**Task:** Create the NOV-14 ticket documentation for E2E tests with Playwright.
+
+**Prompt:**
+```
+Create a new file docs/tickets/NOV-14.md with frontmatter and detailed E2E test requirements:
+
+Frontmatter:
+- id: NOV-14
+- title: "E2E Tests for Position Interface with Playwright"
+- status: triage
+- priority: high
+- labels: [e2e, playwright, testing, frontend]
+
+Content should include:
+1. Contexto section explaining the need for E2E tests using Playwright
+2. Requisitos section with:
+   - Configure Playwright in /frontend
+   - Create tests for position interface
+3. Escenario 1: Page load verification (title, columns, candidate cards)
+4. Escenario 2: Candidate phase change via drag-and-drop
+5. Expected phases: Aplicado, Entrevista, Prueba Técnica, Oferta, Contratado, Rechazado
+6. Verify PUT request is fired on candidate move with currentInterviewStep in body
+7. Deliverables: /frontend/tests/e2e/position.spec.ts and prompts file
+```
+
+**Result:** Created comprehensive NOV-14.md ticket documentation.
+
+---
+
+## Prompt 11: Create Linear tickets sync documentation
+
+**Task:** Create the docs/tickets/README.md file explaining the Linear tickets sync mechanism.
+
+**Prompt:**
+```
+Create docs/tickets/README.md with:
+1. Overview explaining one-way sync from Linear to docs/tickets/
+2. Manual sync instructions with commands
+3. Automated sync example using GitHub Actions
+4. Ticket file format specification with frontmatter
+5. Usage notes for subagents
+6. Warning not to edit files manually
+```
+
+**Result:** Created README.md documenting the Linear sync workflow.
+
+---
+
+## Prompt 12: Set up agent files and skills
+
+**Task:** Create the agent and skill structure with symbolic links to ai-specs.
+
+**Prompt:**
+```
+Create the following directory structure with symbolic links:
+- .opencode/agents → ai-specs/agents
+- .opencode/skills/enrich-us → ai-specs/skills/enrich-us
+- .opencode/skills/multi-agent-investigation → ai-specs/skills/multi-agent-investigation
+- .opencode/skills/project-context-analyzer → ai-specs/skills/project-context-analyzer
+
+For each skill, also create the corresponding documentation in ai-specs/:
+- ai-specs/skills/bdd-e2e/SKILL.md
+- ai-specs/skills/enrich-us/SKILL.md
+- ai-specs/skills/multi-agent-investigation/SKILL.md
+- ai-specs/skills/multi-agent-investigation/refs/multi-agent-orchestration.md
+- ai-specs/skills/project-context-analyzer/SKILL.md
+```
+
+**Result:** Created agent directory structure with symbolic links.
+
+---
+
+## Prompt 13: Create agent documentation
+
+**Task:** Create documentation files for all agents in ai-specs/agents/.
+
+**Prompt:**
+```
+Create documentation files for each agent in ai-specs/agents/:
+- backend-agent.md
+- docs-agent.md
+- frontend-agent.md
+- onboarding-agent.md
+- orchestrator.md
+- qa-agent.md
+
+Each file should document the agent's purpose, responsibilities, and usage.
+```
+
+**Result:** Created comprehensive agent documentation files.
+
+---
+
+## Prompt 14: Analyze project structure with Graphify
+
+**Task:** Run graphify to analyze the current project structure and understand architecture.
+
+**Prompt:**
+```
+Run graphify on the project to analyze:
+1. God nodes (most connected entities)
+2. Communities (tightly coupled modules)
+3. Surprising connections (cross-boundary calls)
+4. Knowledge gaps (isolated nodes)
+
+Read the GRAPH_REPORT.md to understand the architecture.
+```
+
+**Result:** 
+- Graph has 158 nodes, 190 edges, 24 communities
+- God nodes: validateCandidateData() (10 edges), Application (7 edges), Position (6 edges)
+- Key communities: Candidate Domain, Position Queries, Candidate Controllers, Application/Interview, Validators (cohesion 0.40)
+- Architecture: Layered + DDD hybrid pattern
+
+---
+
+## Prompt 15: Update harness-engineering SKILL.md
+
+**Task:** Enhance harness-engineering skill with project-specific quality enforcement.
+
+**Prompt:**
+```
+Update ai-specs/skills/harness-engineering/SKILL.md to include:
+1. Project-specific god nodes and communities from graphify
+2. Quality gates: typecheck, lint, test, e2e, Linear sync
+3. Project stack documentation (Express, Prisma, React, Jest, Playwright)
+4. TDD enforcement as mandatory workflow
+5. Coverage requirements per component type
+6. Commands: pnpm typecheck, pnpm lint, pnpm test
+```
+
+**Result:** Updated harness-engineering with comprehensive project-specific quality enforcement.
+
+---
+
+## Prompt 16: Create TDD skill
+
+**Task:** Create ai-specs/skills/tdd/SKILL.md for test-first development.
+
+**Prompt:**
+```
+Create ai-specs/skills/tdd/SKILL.md with:
+1. Red-green-refactor workflow (RED → write failing test, GREEN → minimal code, REFACTOR → clean)
+2. Backend test conventions (Jest + ts-jest, files next to implementation)
+3. Frontend test conventions (Jest + React Testing Library)
+4. Coverage requirements (Critical: 90%, Business logic: 80%, API: 70%, UI: 60%)
+5. Test structure pattern (describe, given, when, then)
+6. Quality gates: pnpm tsc --noEmit, pnpm lint, pnpm test
+7. Integration with Linear and other skills
+```
+
+**Result:** Created comprehensive TDD skill with workflow, conventions, and quality gates.
+
+---
+
+## Prompt 17: Create playwright-e2e skill
+
+**Task:** Create ai-specs/skills/playwright-e2e/SKILL.md for E2E testing.
+
+**Prompt:**
+```
+Create ai-specs/skills/playwright-e2e/SKILL.md with:
+1. Playwright configuration (playwright.config.ts)
+2. Test structure (pages/, step_definitions/, features/)
+3. Page Object pattern with examples
+4. BDD integration (Gherkin + Playwright)
+5. CLI commands (pnpm test:e2e, --ui, --headed, --debug)
+6. CI/CD integration example
+7. Anti-patterns to avoid
+```
+
+**Result:** Created playwright-e2e skill with configuration, patterns, and CI/CD examples.
+
+---
+
+## Prompt 18: Enhance backend-agent with quality gates
+
+**Task:** Update ai-specs/agents/backend-agent.md with TDD enforcement and quality gates.
+
+**Prompt:**
+```
+Update backend-agent.md to include:
+1. Quality Gates section:
+   - pnpm tsc --noEmit (typecheck)
+   - pnpm lint
+   - pnpm test (≥70% coverage)
+   - Linear ticket sync
+2. TDD Workflow section (RED → GREEN → REFACTOR)
+3. Quality checklist with all gates
+4. Anti-patterns: NEVER skip TDD, NEVER bypass quality gates
+5. Linear integration for ticket creation
+```
+
+**Result:** Enhanced backend-agent with mandatory TDD and quality gates.
+
+---
+
+## Prompt 19: Enhance qa-agent with quality gates
+
+**Task:** Update ai-specs/agents/qa-agent.md with TDD enforcement.
+
+**Prompt:**
+```
+Update qa-agent.md to include:
+1. Quality Gates section for all test types
+2. TDD Enforcement section
+3. Coverage requirements table
+4. Linear integration for test status updates
+5. Quality checklist with all gates
+6. Anti-patterns: NEVER skip TDD, NEVER skip quality gates
+```
+
+**Result:** Enhanced qa-agent with TDD enforcement and quality gates.
+
+---
+
+## Prompt 20: Enhance frontend-agent with quality gates
+
+**Task:** Update ai-specs/agents/frontend-agent.md with TDD enforcement.
+
+**Prompt:**
+```
+Update frontend-agent.md to include:
+1. Quality Gates section:
+   - pnpm tsc --noEmit
+   - pnpm lint
+   - pnpm test (≥60% coverage)
+   - pnpm test:e2e
+   - Linear ticket sync
+2. TDD Workflow with React component example
+3. Quality checklist
+4. Anti-patterns: NEVER skip TDD, NEVER bypass quality gates
+```
+
+**Result:** Enhanced frontend-agent with TDD and quality gates.
+
+---
+
+## Prompt 21: Enhance orchestrator with quality gate validation
+
+**Task:** Update ai-specs/agents/orchestrator.md with quality gate validation.
+
+**Prompt:**
+```
+Update orchestrator.md to include:
+1. Quality Gates section with all required commands
+2. TDD Enforcement as mandatory workflow
+3. Delegation rules with TDD Required column
+4. Quality Gate Validation section
+5. Checklist: all typecheck/lint/test/e2e pass before responding
+6. Anti-patterns: NEVER skip quality gates, NEVER skip Linear sync
+```
+
+**Result:** Enhanced orchestrator with mandatory quality gate validation.
+
+---
+
+## Prompt 22: Add quality scripts to backend package.json
+
+**Task:** Add lint, typecheck, and quality scripts to backend/package.json.
+
+**Prompt:**
+```
+Add these scripts to backend/package.json:
+- "typecheck": "tsc --noEmit"
+- "lint": "eslint src --ext .ts"
+- "quality": "pnpm typecheck && pnpm lint && pnpm test"
+```
+
+**Result:** Added quality scripts to backend.
+
+---
+
+## Prompt 23: Add quality scripts to frontend package.json
+
+**Task:** Add lint, typecheck, and quality scripts to frontend/package.json.
+
+**Prompt:**
+```
+Add these scripts to frontend/package.json:
+- "typecheck": "tsc --noEmit"
+- "lint": "eslint src --ext .ts,.tsx"
+- "quality": "pnpm typecheck && pnpm lint && pnpm test"
+```
+
+**Result:** Added quality scripts to frontend.
+
+---
+
+## Prompt 24: Verify quality commands work
+
+**Task:** Run all quality commands to verify they pass.
+
+**Prompt:**
+```
+Run these commands and verify:
+1. cd backend && pnpm typecheck (should pass with no errors)
+2. cd backend && pnpm lint (should show warnings only, no errors)
+3. cd backend && pnpm test (should pass all tests)
+```
+
+**Result:** 
+- typecheck: passes
+- lint: 6 warnings (no errors)
+- test: 4 suites passed, 4 tests passed
+
+---
+
+## Prompt 25: Add README update workflow and change-reviewer agent
+
+**Task:** Enhance harness-engineering with README auto-update on feature completion and create dedicated change-reviewer agent.
+
+**Prompt:**
+```
+1. Create a new agent ai-specs/agents/change-reviewer.md that:
+   - Acts as final validation gate before task completion
+   - Validates all quality gates (tsc, lint, test, e2e)
+   - Checks README updates when file changes match trigger patterns
+   - Verifies Linear ticket sync
+   - Can APPROVE or REJECT completion
+
+2. Update ai-specs/skills/harness-engineering/SKILL.md to include:
+   - Step 6: README Update Workflow (trigger conditions, flow, docs-agent protocol)
+   - Step 7: Change Reviewer Integration (agent role, integration with orchestrator)
+   - Update validation checklist to include new items
+
+3. Update ai-specs/agents/docs-agent.md to add:
+   - README Update Responsibility section
+   - Trigger conditions for README updates
+
+4. Update ai-specs/agents/orchestrator.md to add:
+   - change-reviewer to sub-agent list
+   - Update orchestration flow to include change-reviewer validation
+   - Update TDD enforcement steps
+```
+
+**Result:**
+- Created `ai-specs/agents/change-reviewer.md` with comprehensive review protocol
+- Updated `ai-specs/skills/harness-engineering/SKILL.md` with README workflow (Step 6) and change reviewer integration (Step 7)
+- Updated `ai-specs/agents/docs-agent.md` with README update triggers
+- Updated `ai-specs/agents/orchestrator.md` with change-reviewer coordination
+
+**README Update Triggers:**
+| File Pattern | README Section |
+|--------------|----------------|
+| `backend/src/routes/*` | API Endpoints |
+| `frontend/src/components/*` | Components |
+| `frontend/tests/e2e/*` | E2E Testing |
+| `backend/prisma/schema.prisma` | Database Schema |
+| `.env.example` | Environment Variables |
+
+**Change Reviewer Flow:**
+```
+Implementation Complete
+        ↓
+change-reviewer validates gates (tsc, lint, test, e2e)
+        ↓
+APPROVED: docs-agent updates README if needed → complete
+REJECTED: return to implementing agent with fixes
+```
+
+---
+
+## Prompt 26: Integrate grill-with-docs with harness (Option D - Hybrid)
+
+**Task:** Integrate grill-with-docs skill into the harness-engineering workflow using the hybrid approach.
+
+**Prompt:**
+```
+Using multi-agent-investigation skill, analyze how to integrate grill-with-docs with the current harness implementation:
+- Current docs-agent creates Linear tickets directly without refinement
+- grill-with-docs challenges plans, sharpens terminology, probes edge cases, updates CONTEXT.md
+- Goal: refine tickets even more before implementation
+
+Use these angles:
+1. docs-agent workflow analysis (explore)
+2. Requirements refinement patterns research (general)
+3. Integration design options (general)
+
+Design options to evaluate:
+- Option A: Pre-processing in docs-agent (simple tasks get light questioning, complex get full interrogation)
+- Option B: Dedicated refinement agent (new agent between orchestrator and delegation)
+- Option C: On-demand during planning (orchestrator invokes grill-with-docs for complex tasks only)
+- Option D: Hybrid (docs-agent handles simple directly, complex triggers grill-with-docs first)
+
+Score each on: implementation complexity (1-5), ticket quality impact (1-5), risk level (1-5)
+```
+
+**Result:** Multi-agent investigation converged on **Option D (Hybrid)** as optimal:
+- Complexity: 3/5
+- Ticket quality: 5/5
+- Risk: 2/5
+
+**Changes implemented:**
+
+1. **Updated `ai-specs/agents/docs-agent.md`:**
+   - Added Two-Mode Workflow section (simple/complex paths)
+   - Added Complexity Assessment with indicators table
+   - Added Complex Task: Grill-with-docs Pre-processing section
+   - Added Simple Task: Direct Processing section
+   - Added Grill Session Trigger Checklist
+   - Added Complexity-Based Refinement section
+   - Updated anti-patterns (NEVER skip grill-with-docs for complex tasks)
+
+2. **Updated `ai-specs/agents/orchestrator.md`:**
+   - Added complexity classification to Core Responsibilities
+   - Updated Workflow to include CLASSIFY complexity step
+   - Added Complexity Classification table with signals
+   - Added Routing Based on Complexity ASCII diagram
+   - Updated Orchestration Pattern diagram to show hybrid flow
+   - Added Complexity-Based TDD Flow section
+   - Updated anti-patterns (NEVER skip complexity classification, NEVER skip grill-with-docs for complex tasks)
+
+3. **Updated `ai-specs/skills/harness-engineering/SKILL.md`:**
+   - Updated to v1.2.0
+   - Replaced Step 3.3 with complexity-based routing flow
+   - Added Step 3.4: Complexity Classification
+   - Added Step 3.5: Hybrid Workflow: grill-with-docs Integration
+   - Updated Step 3.6: Memory Architecture (added CONTEXT.md)
+   - Updated Integration with Orchestrator diagram (hybrid version)
+   - Added Key Integration Points table
+
+4. **Created `CONTEXT.md`** (project root):
+   - Domain glossary with entity definitions
+   - Key validators (cross-community bridges)
+   - Service boundaries (communities)
+   - Terminology notes
+   - Rules for adding terms
+
+**Hybrid Workflow:**
+```
+SIMPLE:
+  Task → docs-agent (direct ticket creation)
+
+COMPLEX:
+  Task → grill-with-docs (stress-test) → docs-agent (refined ticket) → implementation
+```
+
+**Complexity Classification Rule:** 2+ complex indicators → **Complex**; otherwise → **Simple**
+
+---
+
+## Prompt 27: Update graphify after integration
+
+**Task:** Update the knowledge graph after integrating grill-with-docs and creating CONTEXT.md.
+
+**Prompt:**
+```
+Run graphify update . to incorporate:
+- New CONTEXT.md file
+- Updated ai-specs files with grill-with-docs integration
+```
+
+**Result:** Graph updated with 127 nodes, 103 edges, 39 communities (CONTEXT.md now part of knowledge graph).
+
+---
+
+## Prompt 28: Fix E2E test phase names to match actual API
+
+**Task:** Fix hardcoded Spanish phase names in E2E test to match actual backend API phase names.
+
+**Prompt:**
+```
+The E2E test file /frontend/tests/e2e/position.spec.ts has WRONG phase names.
+
+The test hardcodes Spanish phase names that don't match the actual backend API:
+- Test expects: 'Aplicado', 'Entrevista', 'Prueba Técnica', 'Oferta', 'Contratado', 'Rechazado'
+- Actual API returns: 'Initial Screening', 'Technical Interview', 'Manager Interview'
+
+Fix the test file to use the CORRECT phase names:
+
+Line 19 should be:
+const phases = ['Initial Screening', 'Technical Interview', 'Manager Interview'];
+
+Line 40 should be:
+const destColumn = page.locator('[data-testid="phase-column-technical-interview"]');
+
+Line 52 should be:
+const destColumn = page.locator('[data-testid="phase-column-manager-interview"]');
+```
+
+**Result:** Fixed phase names in `position.spec.ts`:
+
+| Line | Before (Wrong) | After (Correct) |
+|------|----------------|-----------------|
+| 19 | `['Aplicado', 'Entrevista', 'Prueba Técnica', 'Oferta', 'Contratado', 'Rechazado']` | `['Initial Screening', 'Technical Interview', 'Manager Interview']` |
+| 40 | `phase-column-entrevista` | `phase-column-technical-interview` |
+| 52 | `phase-column-prueba-técnica` | `phase-column-manager-interview` |
+
+**Verification:** `pnpm tsc --noEmit` passed with no errors.
+
+---
+
+## Prompt 29: Implement backend tickets for new architecture
+
+**Task:** Implement 7 backend tickets (NOV-15 to NOV-21) for new architecture.
+
+**Prompt:**
+```
+Implement these open Linear tickets:
+- NOV-15: Extract PrismaClient Singleton
+- NOV-16: Define CandidateRepository Interface
+- NOV-17: Introduce Custom Error Types
+- NOV-18: Implement PrismaCandidateRepository
+- NOV-19: Fix POST / Route Inconsistency
+- NOV-20: Update Tests for New Architecture
+- NOV-21: Refactor candidateService with Repository and Typed Errors
+
+The tasks involve:
+1. Creating backend/src/database/prisma.ts singleton
+2. Updating all domain models to use shared prisma
+3. Creating CandidateRepository interface
+4. Creating error classes (ValidationError, DuplicateEmailError, NotFoundError)
+5. Creating PrismaCandidateRepository implementing the interface
+6. Refactoring CandidateService to use dependency injection
+7. Updating tests to mock the repository interface
+8. Fixing POST route to use controller directly
+
+Use subagents as needed (qa-agent for tests, change-reviewer for validation).
+```
+
+**Result:** All 7 tickets implemented and completed.
+
+**Changes made:**
+
+| Ticket | Title | Files Created/Modified |
+|--------|-------|------------------------|
+| NOV-15 | Extract PrismaClient Singleton | Created `backend/src/database/prisma.ts`; Updated 12 domain models, `index.ts`, `positionService.ts`, `seed.ts` |
+| NOV-16 | Define CandidateRepository Interface | Created `backend/src/application/repositories/CandidateRepository.ts` |
+| NOV-17 | Introduce Custom Error Types | Created `backend/src/application/errors/AppError.ts` with ValidationError, DuplicateEmailError, NotFoundError |
+| NOV-18 | Implement PrismaCandidateRepository | Created `backend/src/application/repositories/PrismaCandidateRepository.ts` |
+| NOV-19 | Fix POST / Route Inconsistency | Updated `backend/src/routes/candidateRoutes.ts` |
+| NOV-21 | Refactor candidateService | Refactored `backend/src/application/services/candidateService.ts` to use CandidateService class with dependency injection |
+| NOV-20 | Update Tests | Updated `candidateService.test.ts` and `candidateController.test.ts` |
+
+**Quality Gates:**
+- `pnpm tsc --noEmit`: ✅ Pass (0 errors)
+- `pnpm lint`: ✅ Pass (0 errors, 12 warnings)
+- `pnpm test`: ✅ Pass (15/15 tests)
+- Linear tickets: ✅ All 7 marked as Done
+
+---
+
+## Prompt 30: Enforce orchestrator sub-agent delegation
+
+**Task:** Update orchestrator and sub-agents to enforce automatic delegation instead of direct implementation.
+
+**Prompt:**
+```
+Use the harness-engineering skill to analyze the system and make the required changes to enforce the usage of sub-agents when the user asks to implement a ticket.
+
+The problem: When user says "implement a ticket", the Orchestrator sometimes tried to implement directly instead of delegating to sub-agents.
+
+Changes required:
+1. Update orchestrator.md with:
+   - task permissions restricting delegation to only allowed sub-agents
+   - Trigger keywords in description for auto-routing
+   - FORBIDDEN section: "IF YOU RECEIVE A TASK AND DO NOT DELEGATE, YOU HAVE FAILED"
+   - Task Routing Table mapping user request patterns to sub-agents
+
+2. Update sub-agent descriptions with trigger keywords for auto-routing:
+   - qa-agent: "test", "coverage", "e2e", "playwright", "unit test"
+   - docs-agent: "documentation", "spec", "ticket", "linear", "readme"
+
+3. Update harness-engineering/SKILL.md to document the Enforced Delegation Pattern
+```
+
+**Result:** Multi-agent delegation now enforced.
+
+**Changes made:**
+
+| File | Change |
+|------|--------|
+| `ai-specs/agents/orchestrator.md` | Added task permissions, trigger keywords, FORBIDDEN section, Task Routing Table |
+| `ai-specs/agents/qa-agent.md` | Added trigger keywords: "test", "coverage", "e2e", "playwright" |
+| `ai-specs/agents/docs-agent.md` | Added trigger keywords: "documentation", "spec", "ticket", "linear" |
+| `ai-specs/skills/harness-engineering/SKILL.md` | Updated to v1.3.0, added Enforced Delegation Pattern section |
+
+**Orchestrator task permissions:**
+```yaml
+permission:
+  task:
+    "backend-agent": "allow"
+    "frontend-agent": "allow"
+    "qa-agent": "allow"
+    "docs-agent": "allow"
+    "change-reviewer": "allow"
+    "*": "deny"
+```
+
+**Task Routing Table:**
+| User Request | Delegate To |
+|--------------|-------------|
+| "implement / add / create / build" + API/DB/service | backend-agent |
+| "implement / add / create / build" + UI/component | frontend-agent |
+| "fix bug" + backend logic | backend-agent |
+| "fix bug" + UI rendering | frontend-agent |
+| "write tests / test coverage" | qa-agent |
+| "documentation / spec / ticket" | docs-agent |
+| "e2e / playwright / integration" | qa-agent + playwright-e2e |
+| "validate / review / check quality" | change-reviewer |
+
+**Verification:**
+- `.opencode/agents/` → `ai-specs/agents` symlink confirmed
+- `.opencode/skills/` → `ai-specs/skills` symlink confirmed
+- All agent configs properly linked
+
+---
+
+## Prompt 31: Implement backend architecture refactor tickets (NOV-22, NOV-23, NOV-24, NOV-25, NOV-26)
+
+**Task:** Implement 5 backend tickets for Ports & Adapters architecture refactor.
+
+**Prompt:**
+```
+Implement these Linear tickets from the AI4Devs project:
+
+1. NOV-22: Deepen Candidate intake module — Ports & Adapters refactor
+   - Make Candidate a pure data object (no save(), no static findOne())
+   - Move updateCandidateStage to new ApplicationProgressionService
+   - Fix validation bug (data.id skip was wrong for updates)
+   - Make individual validators private (only validateCandidateData exported)
+
+2. NOV-23: Investigate Position queries seam — deepen or merge
+   - Decision: Option B (Deepen) - add in-memory cache with 30s TTL
+   - Created PositionService class with getAllPositions, getCandidatesByPosition, getInterviewFlowByPosition
+   - Marked existing functions as @deprecated
+
+3. NOV-24: Candidate domain model — eliminate duplicate query knowledge
+   - Candidate.ts now only has constructor + fields
+   - Query shape lives only in PrismaCandidateRepository.findOne()
+
+4. NOV-25: Validator module — reduce public surface
+   - Only validateCandidateData is exported
+   - All individual validators are private
+
+5. NOV-26: Application domain model — move database queries to repository
+   - Application.ts is now a pure data object
+   - Created ApplicationRepository interface and PrismaApplicationRepository
+   - Created ApplicationProgressionService
+```
+
+**Result:** All 5 backend tickets implemented and marked as Done.
+
+**Changes made:**
+
+| Ticket | Title | Files Created/Modified |
+|--------|-------|------------------------|
+| NOV-22 | Deepen Candidate intake module | `Candidate.ts` (pure data), `ApplicationProgressionService.ts` (new), `validator.ts` (private validators) |
+| NOV-23 | Investigate Position queries seam | `positionService.ts` (cache + class), `positionController.ts` (uses PositionService) |
+| NOV-24 | Candidate domain model — eliminate duplicate | `Candidate.ts` (removed findOne/save) |
+| NOV-25 | Validator module — reduce public surface | `validator.ts` (only validateCandidateData exported) |
+| NOV-26 | Application domain model — move queries to repository | `ApplicationRepository.ts` (new interface), `PrismaApplicationRepository.ts` (new), `Application.ts` (pure data) |
+
+**Quality Gates:**
+- `pnpm tsc --noEmit`: ✅ 0 errors
+- `pnpm lint`: ✅ 0 errors (18 warnings)
+- `pnpm test`: ✅ 15/15 tests pass
+- Linear tickets: ✅ All 5 marked as Done
+
+---
+
+## Prompt 32: Implement frontend API consolidation tickets (NOV-11, NOV-12, NOV-13)
+
+**Task:** Implement 3 frontend tickets for consolidating candidate API calls.
+
+**Prompt:**
+```
+Implement these Linear tickets from the AI4Devs project:
+
+1. NOV-11: CV upload via candidateApi (FileUploader)
+   - Create frontend/src/services/candidateApi.ts with uploadCvFile(file: File)
+   - Migrate FileUploader.js to use candidateApi
+   - Add onUploadError callback for error display
+
+2. NOV-12: Candidate creation via candidateApi (AddCandidateForm)
+   - Extend candidateApi.ts with createCandidate(payload)
+   - Migrate AddCandidateForm.js handleSubmit to use createCandidate
+   - Spanish-first error messages
+
+3. NOV-13: Remove duplicate axios candidateService
+   - Verify no imports: grep -r "candidateService" frontend/src/
+   - Delete frontend/src/services/candidateService.js
+   - Remove axios if not used elsewhere
+```
+
+**Result:** All 3 frontend tickets implemented and marked as Done.
+
+**Changes made:**
+
+| Ticket | Title | Files Created/Modified |
+|--------|-------|------------------------|
+| NOV-11 | CV upload via candidateApi | Created `candidateApi.ts`, Migrated `FileUploader.tsx` |
+| NOV-12 | Candidate creation via candidateApi | Extended `candidateApi.ts`, Migrated `AddCandidateForm.tsx` |
+| NOV-13 | Remove duplicate axios candidateService | Deleted `candidateService.js` |
+
+**Quality Gates:**
+- `pnpm run typecheck`: ✅ 0 errors
+- `pnpm lint`: ✅ 0 errors
+- `CI=true pnpm test`: ✅ Passed
+
+---
+
+## Prompt 33: Update graphify knowledge graph
+
+**Task:** Update the knowledge graph after implementing all tickets.
+
+**Prompt:**
+```
+Run graphify update . to incorporate:
+- New ApplicationProgressionService
+- New PrismaApplicationRepository
+- New candidateApi.ts service
+- Updated Candidate.ts, Application.ts (pure data objects)
+- Updated PositionService with caching
+```
+
+**Result:** Graph updated with 182 nodes, 160 edges, 23 communities.
+
+**New God Nodes:**
+- validateCandidateData() - 9 edges
+- Application - 5 edges
+- Position - 5 edges
+- CandidateService - 5 edges
+- PositionService - 5 edges (new with caching)
+
+**New Surprising Connections:**
+- handleSubmit() --calls--> createCandidate()
+- handleFileUpload() --calls--> uploadCvFile()
+
+---
+
+## Prompt 34: Fix CodeRabbit review comments
+
+**Task:** Apply all CodeRabbit review comments from PR #22.
+
+**Prompt:**
+```
+Fix the following CodeRabbit comments from PR #22:
+
+1. .gitignore: Change `.env` to `**/.env` for monorepo support
+2. playwright-e2e/SKILL.md: Replace npx with pnpm exec commands
+3. playwright-e2e/SKILL.md: Fix `playwright test --generate` to `playwright codegen`
+4. backend/eslint.config.js: Enable TypeScript ESLint recommended rules
+5. backend-agent.md: Unify coverage threshold (70% vs 80%)
+6. backend-agent.md: Update file-convention paths to application/domain
+7. candidateService.ts: Don't map all errors to NotFoundError in findCandidateById
+8. candidateService.ts: Don't replace unknown errors with generic Error
+9. candidateController.ts: Return 500 instead of 400 for non-domain errors
+10. candidateService.test.ts: Mock Application.findOneByPositionCandidateId
+11. candidateController.test.ts: Update test expectation from 400 to 500
+12. docs/tickets/NOV-14.md: Fix endpoint naming singular to plural
+13. docs/tickets/NOV-14.md: Fix async Promise.all pattern for request interception
+14. docs/tickets/README.md: Fix invalid Linear MCP commands
+15. frontend/package.json: Add ESLint dependencies
+16. frontend/tests/e2e/position.spec.ts: Fix async test structure
+17. frontend/tests/e2e/position.spec.ts: Strengthen visual assertion
+```
+
+**Result:** All CodeRabbit comments addressed.
+
+**Changes made:**
+
+| File | Fix Applied |
+|------|-------------|
+| `.gitignore` | Changed `.env` to `**/.env` |
+| `ai-specs/skills/playwright-e2e/SKILL.md` | Replaced `npx` with `pnpm exec`; fixed `playwright codegen` |
+| `backend/eslint.config.js` | Added `...tseslint.configs.recommended.rules`, fixed unused-vars rule |
+| `ai-specs/agents/backend-agent.md` | Unified coverage to ≥70%; updated paths to `application/` and `domain/` |
+| `backend/src/application/services/candidateService.ts` | Removed try-catch that mapped all errors to NotFoundError; preserve original error |
+| `backend/src/presentation/controllers/candidateController.ts` | Changed fallback from 400 to 500 |
+| `backend/src/application/services/candidateService.test.ts` | Added Application mock with jest.spyOn |
+| `backend/src/presentation/controllers/candidateController.test.ts` | Updated test expectation from 400 to 500 |
+| `docs/tickets/NOV-14.md` | Fixed endpoint to plural; fixed async pattern; strengthened assertion |
+| `docs/tickets/README.md` | Replaced invalid Linear MCP commands with GraphQL API guidance |
+| `frontend/package.json` | Added ESLint dependencies |
+| `frontend/eslint.config.js` | Created new ESLint flat config for frontend |
+| `frontend/tests/e2e/position.spec.ts` | Fixed Promise.all pattern; strengthened card ID assertion |
+
+**Quality Gates:**
+- `pnpm tsc --noEmit`: ✅ Pass (0 errors) for both backend and frontend
+- `pnpm test`: ✅ 15/15 tests pass

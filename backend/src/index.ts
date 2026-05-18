@@ -6,6 +6,7 @@ import candidateRoutes from './routes/candidateRoutes';
 import positionRoutes from './routes/positionRoutes';
 import { uploadFile } from './application/services/fileUploadService';
 import cors from 'cors';
+import { prisma } from './database/prisma';
 
 // Extender la interfaz Request para incluir prisma
 declare global {
@@ -17,7 +18,6 @@ declare global {
 }
 
 dotenv.config();
-const prisma = new PrismaClient();
 
 export const app = express();
 export default app;
