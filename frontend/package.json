@@ -29,6 +29,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "jest --config jest.config.js",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test:e2e": "cypress run --spec cypress/integration/position.spec.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -48,5 +51,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "cypress": "^15.19.0"
   }
 }
